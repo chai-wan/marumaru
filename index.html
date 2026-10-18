@@ -1,0 +1,2084 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>まるまるドット大会</title>
+<script>var FB_URL = "https://marumaru-dot-default-rtdb.asia-southeast1.firebasedatabase.app";</script>
+<style>
+:root{
+  --bg:#fff2cf; --card:#ffffff; --text:#3a2e5f; --sub:#7a6da6;
+  --maze:#eef7ff; --wall:#5a6cf5; --wall-in:#cfd7ff;
+  --dot:#ff8a00; --pellet:#ff4f9a;
+  --p0:#ffc928; --p1:#2cc3f2; --p2:#ff6fae; --p3:#4cc94c;
+  --ghost:#9a63e8; --ghost2:#a4a6bd;
+  --outline:#2f2a55; --eye:#ffffff; --pupil:#2f2a55;
+  --btn:#ff7a59; --btn-text:#ffffff; --btn2:#5a6cf5; --btn3:#e8e4f7; --btn3-text:#3a2e5f;
+  --disabled:#cfcfdc; --shadow:rgba(60,40,120,.22); --focus:#3a2e5f; --warn:#d6336c;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0f1635; --card:#1b2556; --text:#f3f0ff; --sub:#b4b0e6;
+    --maze:#0a1030; --wall:#8f8bff; --wall-in:#1a2166;
+    --dot:#ffe27a; --pellet:#ff8ac6;
+    --p0:#ffd84d; --p1:#4fd6ff; --p2:#ff8cc2; --p3:#6be36b;
+    --ghost:#b48cff; --ghost2:#8d93b8;
+    --outline:#0a1030; --eye:#ffffff; --pupil:#1a1a3a;
+    --btn:#ff7a59; --btn-text:#ffffff; --btn2:#6f7bff; --btn3:#2a3575; --btn3-text:#f3f0ff;
+    --disabled:#3b4272; --shadow:rgba(0,0,0,.4); --focus:#ffe27a; --warn:#ff8ac6;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0f1635; --card:#1b2556; --text:#f3f0ff; --sub:#b4b0e6;
+  --maze:#0a1030; --wall:#8f8bff; --wall-in:#1a2166;
+  --dot:#ffe27a; --pellet:#ff8ac6;
+  --p0:#ffd84d; --p1:#4fd6ff; --p2:#ff8cc2; --p3:#6be36b;
+  --ghost:#b48cff; --ghost2:#8d93b8;
+  --outline:#0a1030; --eye:#ffffff; --pupil:#1a1a3a;
+  --btn:#ff7a59; --btn-text:#ffffff; --btn2:#6f7bff; --btn3:#2a3575; --btn3-text:#f3f0ff;
+  --disabled:#3b4272; --shadow:rgba(0,0,0,.4); --focus:#ffe27a; --warn:#ff8ac6;
+}
+*{box-sizing:border-box}
+html{overscroll-behavior:none}
+body{margin:0;background:var(--bg);color:var(--text);
+  font-family:"Hiragino Maru Gothic ProN","Arial Rounded MT Bold","Hiragino Sans","Yu Gothic UI","Meiryo",system-ui,sans-serif;
+  -webkit-tap-highlight-color:transparent;overflow-x:hidden;-webkit-text-size-adjust:100%}
+body.playing{position:fixed;top:0;left:0;right:0;bottom:0;width:100%;overflow:hidden;touch-action:none;-webkit-user-select:none;-webkit-touch-callout:none}
+body.playing #app{padding:4px 16px 4px}
+body.playing #mute{width:32px;height:32px;top:2px;right:8px;font-size:16px}
+#net{position:fixed;top:12px;left:0;right:0;text-align:center;pointer-events:none;font-size:11px;font-weight:700;color:var(--warn);z-index:6}
+#app{max-width:440px;margin:0 auto;padding:14px 16px 28px}
+section[hidden],[hidden]{display:none!important}
+h1{margin:6px 0 4px;text-align:center;font-size:30px;line-height:1.15;letter-spacing:1px;color:var(--text)}
+h1 span{display:block;color:var(--btn);font-size:34px}
+h2{margin:8px 0;text-align:center}
+.card{background:var(--card);border-radius:22px;padding:14px;margin:12px 0;box-shadow:0 4px 0 var(--shadow)}
+.lbl{font-size:13px;color:var(--sub);margin:6px 0 4px;font-weight:700}
+.small{font-size:12px;color:var(--sub);margin:6px 0}
+.note{min-height:18px;text-align:center;font-size:13px;color:var(--warn);font-weight:700;margin:4px 0}
+input{width:100%;height:46px;border-radius:14px;border:3px solid var(--btn3);background:var(--bg);color:var(--text);font-size:20px;padding:0 12px;font-family:inherit;text-align:center}
+input:focus{outline:3px solid var(--focus);outline-offset:1px}
+.btn{display:block;width:100%;min-height:54px;margin:8px 0;border:0;border-radius:27px;background:var(--btn);color:var(--btn-text);font-size:19px;font-weight:800;font-family:inherit;box-shadow:0 4px 0 var(--shadow);touch-action:manipulation}
+.btn:active{transform:translateY(2px);box-shadow:0 2px 0 var(--shadow)}
+.btn.b2{background:var(--btn2)}
+.btn.b3{background:var(--btn3);color:var(--btn3-text)}
+.btn:disabled{background:var(--disabled);color:var(--sub);box-shadow:none}
+.btn:focus-visible,.cbtn:focus-visible,.dp:focus-visible,#mute:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+.spd{display:flex;margin:6px 0 2px}
+.spd button+button{margin-left:8px}
+.spd button{flex:1;min-height:48px;border:3px solid var(--btn3);border-radius:16px;background:var(--btn3);color:var(--btn3-text);font-size:16px;font-weight:800;font-family:inherit;touch-action:manipulation}
+.spd button[aria-pressed="true"]{background:var(--btn2);border-color:var(--text);color:#fff}
+.spd button:disabled{opacity:.75}
+.spd button:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+.joinrow{display:flex;align-items:center}
+.joinrow .btn{margin:8px 0 8px 8px}
+.joinrow input{width:110px;flex:none;letter-spacing:4px;text-transform:uppercase}
+.joinrow .btn{margin:8px 0}
+.colors{display:flex;justify-content:center;margin:6px 0 2px}
+.cbtn+.cbtn{margin-left:10px}
+.cbtn{width:56px;height:56px;border-radius:50%;border:4px solid var(--btn3);padding:0;position:relative;touch-action:manipulation}
+.cbtn[aria-pressed="true"]{border-color:var(--text);transform:scale(1.08)}
+.cbtn:disabled{background:var(--disabled)!important;opacity:.55}
+.code{font-size:38px;font-weight:900;letter-spacing:8px;text-align:center;color:var(--btn2)}
+ul{list-style:none;margin:6px 0;padding:0}
+li>*+*{margin-left:10px}
+li{display:flex;align-items:center;padding:7px 4px;font-size:18px;font-weight:700;border-bottom:2px dashed var(--btn3)}
+.cdot{display:inline-block;width:20px;height:20px;border-radius:50%;border:2px solid var(--outline);flex:none}
+.tag{font-size:11px;background:var(--btn2);color:#fff;border-radius:10px;padding:2px 8px;font-weight:700}
+.tag.t2{background:var(--btn)}
+.tag.t3{background:var(--disabled);color:var(--text)}
+#logo{display:block;width:100%;height:84px}
+#mute{position:fixed;top:8px;right:8px;z-index:5;width:44px;height:44px;border-radius:50%;border:0;background:var(--card);color:var(--text);font-size:20px;box-shadow:0 3px 0 var(--shadow);touch-action:manipulation}
+/* game */
+#sGame{padding:0;touch-action:none;user-select:none;-webkit-user-select:none}
+.hud{display:flex;align-items:center;justify-content:space-between;padding:0 48px 0 4px;height:26px}
+#timer{font-size:18px;font-weight:900}
+.chips{display:flex;margin:2px 0 4px}
+.chip+.chip{margin-left:6px}
+.chip{flex:1;min-width:0;background:var(--card);border-radius:12px;padding:1px 4px;text-align:center;border:3px solid transparent}
+.chip.me{border-color:var(--text)}
+.chip.gone{opacity:.5}
+.chip .cn{font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--sub);font-weight:700;display:block}
+.chip .cs{font-size:17px;font-weight:900;display:flex;align-items:center;justify-content:center}
+.chip .cs>*+*{margin-left:5px}
+.chip .cdot{width:13px;height:13px}
+#cv{display:block;margin:0 auto;border-radius:14px;touch-action:none}
+#gmsg{text-align:center}
+#gmsg:empty{display:none}
+.dpad{display:grid;grid-template-columns:repeat(3,60px);grid-template-rows:60px 60px;grid-gap:6px;gap:6px;justify-content:center;margin:2px auto 0}
+.dp{width:60px;height:60px;border:0;border-radius:20px;background:var(--btn2);color:#fff;font-size:28px;font-weight:900;box-shadow:0 4px 0 var(--shadow);touch-action:none;font-family:inherit}
+.dp:active{transform:translateY(2px)}
+.dp.up{grid-column:2;grid-row:1}.dp.lf{grid-column:1;grid-row:2}.dp.dn{grid-column:2;grid-row:2}.dp.rt{grid-column:3;grid-row:2}
+/* result */
+ol{list-style:none;margin:10px 0;padding:0}
+.rrow>*+*{margin-left:10px}
+.rrow{display:flex;align-items:center;background:var(--card);border-radius:18px;padding:10px 12px;margin:8px 0;font-size:20px;font-weight:800;box-shadow:0 3px 0 var(--shadow)}
+.rrow .rk{width:34px;text-align:center;font-size:22px}
+.rrow .nm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rrow.gone{opacity:.55}
+.rrow.first{border:3px solid var(--p0)}
+</style>
+</head>
+<body>
+<div id="net" hidden>つながりにくいよ</div>
+<main id="app">
+  <button id="mute" aria-label="おと">♪</button>
+
+  <section id="sLobby">
+    <h1>まるまる<span>ドット大会</span></h1>
+    <canvas id="logo"></canvas>
+    <div class="card">
+      <label class="lbl" for="name">なまえ(6もじまで)</label>
+      <input id="name" maxlength="6" autocomplete="off" placeholder="なまえ">
+      <div class="lbl">いろをえらぼう</div>
+      <div id="colors" class="colors"></div>
+      <div class="lbl">スピード</div>
+      <div id="spd" class="spd"></div>
+      <div id="spdNote" class="small" style="text-align:center" hidden>スピードはホストがきめるよ</div>
+    </div>
+    <div id="menuBox" class="card">
+      <button id="btnSolo" class="btn">ひとりで遊ぶ</button>
+      <div id="onlineBtns" hidden>
+        <button id="btnCreate" class="btn b2">へやをつくる</button>
+        <div class="joinrow">
+          <input id="codeIn" maxlength="4" autocomplete="off" autocapitalize="characters" placeholder="コード" aria-label="へやコード">
+          <button id="btnJoin" class="btn b2">へやに入る</button>
+        </div>
+      </div>
+      <p id="hi" class="small" style="text-align:center"></p>
+    </div>
+    <div id="roomBox" class="card" hidden>
+      <div class="small" style="text-align:center">へやコード(ともだちにおしえてね)</div>
+      <div id="roomCode" class="code"></div>
+      <ul id="plist"></ul>
+      <p id="roomMsg" class="small" style="text-align:center"></p>
+      <button id="btnStart" class="btn">スタート</button>
+      <button id="btnLeave" class="btn b3">でる</button>
+    </div>
+    <p id="note" class="note" role="status"></p>
+  </section>
+
+  <section id="sGame" hidden>
+    <div class="hud" id="hudbar"><div id="timer">のこり 90</div></div>
+    <div class="chips" id="chips"></div>
+    <canvas id="cv"></canvas>
+    <div id="gmsg" class="small"></div>
+    <div class="dpad" id="dpadbox">
+      <button class="dp up" data-d="1" aria-label="うえ">▲</button>
+      <button class="dp lf" data-d="4" aria-label="ひだり">◀</button>
+      <button class="dp dn" data-d="3" aria-label="した">▼</button>
+      <button class="dp rt" data-d="2" aria-label="みぎ">▶</button>
+    </div>
+  </section>
+
+  <section id="sResult" hidden>
+    <h2 id="resTitle">けっか</h2>
+    <ol id="resList"></ol>
+    <p id="resMsg" class="small" style="text-align:center"></p>
+    <button id="btnAgain" class="btn">もういちど</button>
+    <button id="btnBack" class="btn b3">ロビーへ</button>
+  </section>
+</main>
+
+<script>
+(() => {
+  "use strict";
+  const MAZE = [
+    "###################",
+    "#o.......#.......o#",
+    "#.###.##.#.##.###.#",
+    "#1...............2#",
+    "#.###.#.###.#.###.#",
+    "#.....#.....#.....#",
+    "#####.###.###.#####",
+    "#####.#.....#.#####",
+    "#####.#.###.#.#####",
+    "     ...#G#...     ",
+    "#####.#..G..#.#####",
+    "#####.#.###.#.#####",
+    "#####.#.....#.#####",
+    "#####.###.###.#####",
+    "#.....#.....#.....#",
+    "#.###.#.###.#.###.#",
+    "#o..#.........#..o#",
+    "#.#.#.###.###.#.#.#",
+    "#.#.....#.#.....#.#",
+    "#3...............4#",
+    "###################"
+  ];
+  const W = 19, H = 21, NT = W * H;
+  const DX = [0, 0, 1, 0, -1], DY = [0, -1, 0, 1, 0], OPP = [0, 3, 4, 1, 2];
+  const STARTS = [[1, 3], [17, 3], [1, 19], [17, 19]];
+  const GSTART = [[9, 9], [9, 10]];
+  const SPEEDS = [[3.5, 2.8], [4.5, 3.7], [6, 5]], SPNAMES = ["\u3086\u3063\u304F\u308A", "\u3075\u3064\u3046", "\u306F\u3084\u3044"];
+  const isWall = (x, y) => MAZE[y][x] === "#";
+  let DOTCOUNT = 0;
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) if (MAZE[y][x] === ".") DOTCOUNT++;
+  const $ = (id) => document.getElementById(id);
+  const store = { get(k) {
+    try {
+      return localStorage.getItem(k);
+    } catch (e) {
+      return null;
+    }
+  }, set(k, v) {
+    try {
+      localStorage.setItem(k, v);
+    } catch (e) {
+    }
+  } };
+  const clampInt = (v, a, b, def) => {
+    v = Number(v);
+    return Number.isFinite(v) ? Math.max(a, Math.min(b, Math.round(v))) : def;
+  };
+  const num = (v) => {
+    v = Number(v);
+    return Number.isFinite(v) ? v : 0;
+  };
+  const cleanName = (n) => {
+    const s = Array.from(String(n == null ? "" : n).replace(/[\u0000-\u001f\u007f-\u009f​-‏‪-‮⁠-⁯﻿]/g, "")).slice(0, 6).join("");
+    return s || "\u306A\u306A\u3057";
+  };
+  let C = {}, mazeDirty = true;
+  function readColors() {
+    const cs = getComputedStyle(document.documentElement), g = (n) => cs.getPropertyValue(n).trim();
+    C = {
+      maze: g("--maze"),
+      wall: g("--wall"),
+      wallIn: g("--wall-in"),
+      dot: g("--dot"),
+      pellet: g("--pellet"),
+      p: [g("--p0"), g("--p1"), g("--p2"), g("--p3")],
+      ghost: g("--ghost"),
+      ghost2: g("--ghost2"),
+      outline: g("--outline"),
+      eye: g("--eye"),
+      pupil: g("--pupil"),
+      text: g("--text"),
+      bg: g("--bg")
+    };
+    mazeDirty = true;
+  }
+  readColors();
+  try {
+    const mq = matchMedia("(prefers-color-scheme: dark)");
+    if (mq.addEventListener) mq.addEventListener("change", readColors);
+    else if (mq.addListener) mq.addListener(readColors);
+  } catch (e) {
+  }
+  try {
+    new MutationObserver(readColors).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+  } catch (e) {
+  }
+  let room = null, r = null, online = false, roomCode = "", unsubs = [];
+  let myName = cleanName(store.get("mdt_name") || "\u30B2\u30B9\u30C8"), myColor = clampInt(store.get("mdt_color"), 0, 3, 0);
+  let myPeer = "me", myJoin = Date.now(), members = [], peerInput = /* @__PURE__ */ new Map();
+  let phase = "lobby", solo = false, isHost = false, hostPeer = "", ids = ["", "", "", ""], mySlot = -1, names = ["", "", "", ""];
+  let sim = null, simTimer = 0, simLast = 0;
+  let snaps = [], lastSnap = null, lastK = -1, seenEid = 0, lastStateAt = 0, gameStartAt = 0, cdEnd = 0, lastCd = 9, lobbySince = 0;
+  let mySp = clampInt(store.get("mdt_sp"), 0, 2, 0), gameSp = 0;
+  let myD = 0, dTimer = 0, lastPd = 0, startTimer = 0, muted = store.get("mdt_mute") === "1", noteTimer = 0;
+  function note(msg) {
+    const n = $("note");
+    n.textContent = msg;
+    clearTimeout(noteTimer);
+    noteTimer = setTimeout(() => {
+      n.textContent = "";
+    }, 6e3);
+  }
+  let ac = null, lastDotBeep = 0;
+  function audio() {
+    if (!ac) {
+      try {
+        ac = new (window.AudioContext || window.webkitAudioContext)();
+      } catch (e) {
+        ac = null;
+      }
+    }
+    if (ac && ac.state === "suspended") {
+      try {
+        ac.resume();
+      } catch (e) {
+      }
+    }
+    return ac;
+  }
+  function beep(f, dur, type, vol, delay, f2) {
+    if (muted) return;
+    const a = audio();
+    if (!a) return;
+    try {
+      const t = a.currentTime + (delay || 0), o = a.createOscillator(), g = a.createGain();
+      o.type = type || "square";
+      o.frequency.setValueAtTime(f, t);
+      if (f2) o.frequency.linearRampToValueAtTime(f2, t + dur);
+      g.gain.setValueAtTime(vol || 0.05, t);
+      g.gain.exponentialRampToValueAtTime(1e-4, t + dur);
+      o.connect(g);
+      g.connect(a.destination);
+      o.start(t);
+      o.stop(t + dur + 0.03);
+    } catch (e) {
+    }
+  }
+  function vib(ms) {
+    try {
+      if (!muted && navigator.vibrate) navigator.vibrate(ms);
+    } catch (e) {
+    }
+  }
+  function updMute() {
+    $("mute").textContent = muted ? "\xD7" : "\u266A";
+    $("mute").setAttribute("aria-label", muted ? "\u304A\u3068\u3092\u3060\u3059" : "\u304A\u3068\u3092\u3051\u3059");
+  }
+  $("mute").addEventListener("click", () => {
+    muted = !muted;
+    store.set("mdt_mute", muted ? "1" : "0");
+    updMute();
+    audio();
+  });
+  updMute();
+  function canGo(tx, ty, d, ghost) {
+    const nx = ((tx + DX[d]) % W + W) % W, ny = ty + DY[d];
+    if (ny < 0 || ny >= H) return false;
+    if (isWall(nx, ny)) return false;
+    if (!ghost && nx === 9 && ny === 9) return false;
+    return true;
+  }
+  function move(e, dist, ai, ghost) {
+    let guard = 0;
+    while (dist > 1e-9 && guard++ < 8) {
+      const cx2 = Math.round(e.x), cy = Math.round(e.y);
+      const atC = Math.abs(e.x - cx2) < 1e-7 && Math.abs(e.y - cy) < 1e-7;
+      let dn;
+      if (atC) {
+        e.x = cx2;
+        e.y = cy;
+        const tx = (cx2 % W + W) % W;
+        if (ai) ai(e, tx, cy);
+        else if (e.want && canGo(tx, cy, e.want, ghost)) e.d = e.want;
+        if (e.d && !canGo(tx, cy, e.d, ghost)) e.d = 0;
+        if (!e.d) return;
+        dn = 1;
+      } else {
+        if (!ai && e.want && e.want === OPP[e.d]) e.d = e.want;
+        if (!e.d) return;
+        if (e.d === 2) dn = Math.ceil(e.x - 1e-9) - e.x;
+        else if (e.d === 4) dn = e.x - Math.floor(e.x + 1e-9);
+        else if (e.d === 1) dn = e.y - Math.floor(e.y + 1e-9);
+        else dn = Math.ceil(e.y - 1e-9) - e.y;
+        if (dn < 1e-9) dn = 1;
+      }
+      const step = Math.min(dist, dn);
+      if (e.d === 2 || e.d === 4) {
+        const tgt = e.x + DX[e.d] * dn;
+        e.x += DX[e.d] * step;
+        if (step >= dn - 1e-9) e.x = Math.round(tgt);
+      } else {
+        const tgt = e.y + DY[e.d] * dn;
+        e.y += DY[e.d] * step;
+        if (step >= dn - 1e-9) e.y = Math.round(tgt);
+      }
+      if (e.x < -0.5) e.x += W;
+      else if (e.x > W - 0.5) e.x -= W;
+      dist -= step;
+    }
+  }
+  function mkRng(seed) {
+    let a = seed >>> 0;
+    return () => {
+      a = a + 1831565813 >>> 0;
+      let t = a;
+      t = Math.imul(t ^ t >>> 15, t | 1);
+      t ^= t + Math.imul(t ^ t >>> 7, t | 61);
+      return ((t ^ t >>> 14) >>> 0) / 4294967296;
+    };
+  }
+  function freshDots() {
+    const d = new Uint8Array(NT);
+    for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+      const c = MAZE[y][x];
+      if (c === "." || c === "o") d[y * W + x] = 1;
+    }
+    return d;
+  }
+  function newSim(idl, seed, sp) {
+    sp = clampInt(sp, 0, 2, 0);
+    const s = { sp, pv: SPEEDS[sp][0], gv: SPEEDS[sp][1], ids: idl.slice(), rng: mkRng(seed), T: 90, count: 3, k: 0, eid: 0, evs: [], pel: [], P: [], G: [], dots: freshDots(), over: false, emitAcc: 0, dotsLeft: DOTCOUNT, stalled: false };
+    for (let i = 0; i < 4; i++) {
+      const act = !!idl[i];
+      s.P.push({ act, left: !act, x: STARTS[i][0], y: STARTS[i][1], d: 0, want: 0, sc: 0, power: 0, rest: 0, inv: 0 });
+    }
+    for (let i = 0; i < 2; i++) s.G.push({ x: GSTART[i][0], y: GSTART[i][1], d: 0, m: 0, t: 0, h: 3 + i * 3 });
+    s.ai = (e, tx, cy) => {
+      const o = [];
+      for (let d = 1; d <= 4; d++) if (canGo(tx, cy, d, true) && !(o.length === 0 && false)) o.push(d);
+      let opts = o.length > 1 ? o.filter((d) => d !== OPP[e.d]) : o;
+      if (!opts.length) {
+        e.d = 0;
+        return;
+      }
+      let best = null, bd = 1e9;
+      for (const p of s.P) {
+        if (!p.act || p.left || p.rest > 0) continue;
+        const dd = (p.x - tx) ** 2 + (p.y - cy) ** 2;
+        if (dd < bd) {
+          bd = dd;
+          best = p;
+        }
+      }
+      if (!best || s.rng() < 0.3) {
+        e.d = opts[Math.floor(s.rng() * opts.length)];
+        return;
+      }
+      const flee = best.power > 0;
+      let pick = opts[0], pv = flee ? -1 : 1e9;
+      for (const d of opts) {
+        const v = (best.x - (tx + DX[d])) ** 2 + (best.y - (cy + DY[d])) ** 2;
+        if (flee ? v > pv : v < pv) {
+          pv = v;
+          pick = d;
+        }
+      }
+      e.d = pick;
+    };
+    return s;
+  }
+  function flagsOf(p) {
+    return (p.power > 0 ? 1 : 0) | (p.rest > 0 ? 2 : 0) | (p.inv > 0 ? 4 : 0) | (!p.act || p.left ? 8 : 0);
+  }
+  function evPush(s, kind, x, y, slot) {
+    const e = { id: ++s.eid, kind, x: Math.round(x), y: Math.round(y), slot, n: 0 };
+    s.evs.push(e);
+    if (s.evs.length > 40) s.evs.shift();
+    playEvent(kind, slot);
+  }
+  function playEvent(kind, slot) {
+    const mine = slot === mySlot, now = performance.now();
+    if (kind === 0) {
+      if (mine && now - lastDotBeep > 70) {
+        lastDotBeep = now;
+        beep(760, 0.04, "square", 0.03);
+      }
+    } else if (kind === 1) {
+      if (mine) {
+        beep(500, 0.12, "square", 0.05, 0, 1100);
+      }
+    } else if (kind === 2) {
+      beep(mine ? 900 : 600, 0.1, "triangle", 0.07, 0, mine ? 1500 : 900);
+    } else if (kind === 3) {
+      if (mine) {
+        beep(300, 0.35, "sawtooth", 0.06, 0, 90);
+        vib(120);
+      } else beep(220, 0.15, "sawtooth", 0.03, 0, 120);
+    }
+  }
+  function caught(s, j) {
+    const q = s.P[j];
+    q.rest = 3;
+    q.x = STARTS[j][0];
+    q.y = STARTS[j][1];
+    q.d = 0;
+    q.want = 0;
+    q.inv = 0;
+    q.power = 0;
+    evPush(s, 3, q.x, q.y, j);
+  }
+  function getInput(i) {
+    if (i === mySlot) return myD;
+    const v = peerInput.get(sim.ids[i]);
+    return v ? v : 0;
+  }
+  function simTick(s, dt) {
+    if (s.over) return;
+    if (s.count > 0) {
+      s.count -= dt;
+      if (s.count > 0) return;
+      s.count = 0;
+    }
+    s.T -= dt;
+    for (let i = 0; i < 4; i++) {
+      const p = s.P[i];
+      if (!p.act || p.left) continue;
+      p.want = getInput(i);
+      p.power = Math.max(0, p.power - dt);
+      p.inv = Math.max(0, p.inv - dt);
+      if (p.rest > 0) {
+        p.rest -= dt;
+        if (p.rest <= 0) {
+          p.rest = 0;
+          p.inv = 2;
+        }
+        continue;
+      }
+      move(p, s.pv * dt, null, false);
+      const tx = (Math.round(p.x) % W + W) % W, ty = Math.round(p.y);
+      if (Math.abs(p.x - Math.round(p.x)) < 0.4 && Math.abs(p.y - ty) < 0.4) {
+        const idx = ty * W + tx;
+        if (s.dots[idx]) {
+          s.dots[idx] = 0;
+          if (MAZE[ty][tx] === "o") {
+            p.sc += 5;
+            p.power = 6;
+            s.pel.push({ i: idx, t: 15 });
+            evPush(s, 1, tx, ty, i);
+          } else {
+            p.sc += 1;
+            s.dotsLeft--;
+            evPush(s, 0, tx, ty, i);
+          }
+        }
+      }
+    }
+    for (const g of s.G) {
+      if (g.h > 0) {
+        g.h -= dt;
+        continue;
+      }
+      if (g.m) {
+        g.t -= dt;
+        if (g.t <= 0) {
+          g.m = 0;
+          g.x = 9;
+          g.y = 9;
+          g.d = 0;
+        }
+        continue;
+      }
+      move(g, s.gv * dt, s.ai, true);
+    }
+    for (let i = 0; i < 4; i++) {
+      const p = s.P[i];
+      if (!p.act || p.left || p.rest > 0) continue;
+      for (const g of s.G) {
+        if (g.m) continue;
+        if ((p.x - g.x) ** 2 + (p.y - g.y) ** 2 < 0.5) {
+          if (p.power > 0) {
+            p.sc += 10;
+            g.m = 1;
+            g.t = 5;
+            g.x = 9;
+            g.y = 9;
+            g.d = 0;
+            evPush(s, 2, p.x, p.y, i);
+          } else if (p.inv <= 0) {
+            p.sc = Math.max(0, p.sc - 5);
+            caught(s, i);
+            break;
+          }
+        }
+      }
+      if (p.rest > 0 || p.power <= 0) continue;
+      for (let j = 0; j < 4; j++) {
+        if (j === i) continue;
+        const q = s.P[j];
+        if (!q.act || q.left || q.rest > 0 || q.inv > 0 || q.power > 0) continue;
+        if ((p.x - q.x) ** 2 + (p.y - q.y) ** 2 < 0.5) {
+          const st = Math.min(10, q.sc);
+          q.sc -= st;
+          p.sc += st;
+          evPush(s, 2, p.x, p.y, i);
+          caught(s, j);
+        }
+      }
+    }
+    for (let k = s.pel.length - 1; k >= 0; k--) {
+      const e = s.pel[k];
+      e.t -= dt;
+      if (e.t <= 0) {
+        s.dots[e.i] = 1;
+        s.pel.splice(k, 1);
+      }
+    }
+    if (s.dotsLeft <= 0 || s.T <= 0) {
+      s.T = Math.max(0, s.T);
+      finishGame(s);
+    }
+  }
+  function dotsToHex(d) {
+    let out = "";
+    for (let n = 0; n < NT; n += 4) {
+      let v = 0;
+      for (let b = 0; b < 4; b++) if (n + b < NT && d[n + b]) v |= 1 << b;
+      out += v.toString(16);
+    }
+    return out;
+  }
+  function hexToDots(h) {
+    const d = new Uint8Array(NT);
+    for (let i = 0; i < NT; i++) d[i] = parseInt(h[i >> 2], 16) >> (i & 3) & 1;
+    return d;
+  }
+  const q16 = (v) => Math.max(0, Math.min(304, Math.round((v + 0.5) * 16)));
+  function buildState(s) {
+    const E = [];
+    for (const e of s.evs) if (e.n < 3) {
+      e.n++;
+      E.push([e.id, e.kind, e.x, e.y, e.slot]);
+    }
+    s.evs = s.evs.filter((e) => e.n < 3);
+    const st = {
+      k: ++s.k,
+      T: Math.round(s.T * 10) / 10,
+      P: s.P.map((p) => [q16(p.x), q16(p.y), p.d, flagsOf(p), Math.min(9999, p.sc)]),
+      G: s.G.map((g) => [q16(g.x), q16(g.y), g.d, g.m]),
+      D: dotsToHex(s.dots),
+      E
+    };
+    if (s.k % 10 === 1) {
+      st.I = s.ids;
+      st.S = s.sp;
+    }
+    return st;
+  }
+  function startSimLoop() {
+    clearInterval(simTimer);
+    simLast = performance.now();
+    simTimer = setInterval(simStep, 33);
+  }
+  function stopSim() {
+    clearInterval(simTimer);
+    simTimer = 0;
+  }
+  function simStep() {
+    if (!sim) return;
+    const now = performance.now(), raw = (now - simLast) / 1e3;
+    simLast = now;
+    if (raw > 1.2) sim.stalled = true;
+    const dt = Math.min(raw, 0.1);
+    simTick(sim, dt);
+    if (!sim || sim.over) return;
+    if (online && isHost) {
+      sim.emitAcc += dt;
+      if (sim.emitAcc >= 0.125 && (!r || r.stateReady())) {
+        sim.emitAcc = Math.min(sim.emitAcc - 0.125, 0.125);
+        send("state", buildState(sim));
+      }
+    }
+  }
+  function finishGame(s) {
+    s.over = true;
+    stopSim();
+    const sc = s.P.map((p) => Math.min(9999, p.sc)), l = s.P.map((p) => p.act && !p.left ? 0 : 1);
+    if (online && isHost && !solo) {
+      const msg = { sc, l };
+      send("end", msg);
+      setTimeout(() => send("end", msg), 400);
+      setTimeout(() => send("end", msg), 900);
+    }
+    showResult(sc, l);
+  }
+  const FBU = String(typeof FB_URL === "string" ? FB_URL : "").replace(/\/+$/, "");
+  const PID = (() => {
+    const a = "abcdefghijklmnopqrstuvwxyz0123456789";
+    let s = "";
+    for (let i = 0; i < 12; i++) s += a[Math.floor(Math.random() * a.length)];
+    return s;
+  })();
+  const netEl = $("net");
+  function netOk() {
+    netEl.hidden = true;
+  }
+  function netBad(e) {
+    if (e && (e.status === 401 || e.status === 403)) {
+      failOnline();
+      return;
+    }
+    netEl.hidden = false;
+  }
+  function send(topic, data) {
+    if (!r) return Promise.resolve();
+    try {
+      return r.emit(topic, data).catch(() => {
+      });
+    } catch (e) {
+      return Promise.resolve();
+    }
+  }
+  function setPresence(p) {
+    if (!r) return;
+    try {
+      r.presence(p).catch(() => {
+      });
+    } catch (e) {
+    }
+  }
+  function failOnline() {
+    if (!online && !r && !room) return;
+    note("\u30AA\u30F3\u30E9\u30A4\u30F3\u5BFE\u6226\u306F\u3064\u304B\u3048\u307E\u305B\u3093");
+    netEl.hidden = true;
+    room = null;
+    if (phase === "lobby") {
+      leaveRoom();
+    }
+    refreshLobby();
+  }
+  async function initRoom() {
+    room = FBU ? { join: (code, create) => mkFbRoom(code, create) } : null;
+    refreshLobby();
+  }
+  async function mkFbRoom(code, create) {
+    const base = FBU + "/mdt/" + code;
+    let tree = {}, closed = false, es = null, esT = 0, first = true, peerList = [], prevSig = {}, prevEnt = {}, kseq = Date.now(), stateBusy = 0, pend = null, sending = false;
+    const joinedAt = Date.now(), mine = {}, seen = { start: "", end: "", lobby: "", state: "" }, ls = {}, H2 = { start: [], state: [], end: [], lobby: [] }, PH = [];
+    function req(method, path, body) {
+      return fetch(base + path + ".json", { method, body: body === void 0 ? void 0 : JSON.stringify(body) }).then((res) => {
+        if (!res.ok) {
+          const e = new Error("http " + res.status);
+          e.status = res.status;
+          throw e;
+        }
+        if (!closed) netOk();
+        return res;
+      }).catch((e) => {
+        if (!closed) netBad(e);
+        throw e;
+      });
+    }
+    function pump() {
+      if (sending || !pend || closed) return;
+      const b = pend;
+      pend = null;
+      sending = true;
+      req("PATCH", "/players/" + PID, b).then(() => {
+        sending = false;
+        pump();
+      }, () => {
+        pend = pend || {};
+        for (const k in b) if (!(k in pend)) pend[k] = b[k];
+        setTimeout(() => {
+          sending = false;
+          pump();
+        }, 1e3);
+      });
+    }
+    function queue(o) {
+      pend = pend || {};
+      for (const k in o) pend[k] = o[k];
+      pump();
+    }
+    const BAD = { "__proto__": 1, "constructor": 1, "prototype": 1 };
+    function setAt(path, val) {
+      if (!path.length) {
+        tree = val && typeof val === "object" ? val : {};
+        return;
+      }
+      for (const k of path) if (BAD[k]) return;
+      let o = tree;
+      for (let i = 0; i < path.length - 1; i++) {
+        const k = path[i];
+        if (!o[k] || typeof o[k] !== "object") {
+          if (val === null || val === void 0) return;
+          o[k] = {};
+        }
+        o = o[k];
+      }
+      const last = path[path.length - 1];
+      if (val === null || val === void 0) delete o[last];
+      else o[last] = val;
+    }
+    function keyOf(topic, n) {
+      if (!n || typeof n !== "object" || typeof n.from !== "string" || n.from.length > 64) return "";
+      const k = topic === "state" ? n.data && typeof n.data === "object" ? n.data.k : void 0 : n.k;
+      return n.from + ":" + String(k);
+    }
+    function dispatch(topic) {
+      const n = tree[topic], key = keyOf(topic, n);
+      if (!key || key === seen[topic]) return;
+      seen[topic] = key;
+      const msg = { topic, data: n.data, peer: n.from, sameTab: n.from === PID, isMe: n.from === PID, kind: "viewer", guest: false, by: null };
+      for (const fn of H2[topic].slice()) {
+        try {
+          fn(msg);
+        } catch (e) {
+        }
+      }
+    }
+    function onEv(type, raw) {
+      if (closed) return;
+      let m;
+      try {
+        m = JSON.parse(raw);
+      } catch (e) {
+        return;
+      }
+      if (!m || typeof m !== "object") return;
+      const path = String(m.path || "/").split("/").filter(Boolean);
+      const initial = first && type === "put" && path.length === 0;
+      if (type === "put") setAt(path, m.data === void 0 ? null : m.data);
+      else if (m.data && typeof m.data === "object") {
+        for (const k of Object.keys(m.data)) setAt(path.concat(String(k).split("/").filter(Boolean)), m.data[k]);
+      } else return;
+      if (initial) {
+        first = false;
+        for (const t of ["start", "end", "lobby", "state"]) seen[t] = keyOf(t, tree[t]);
+      } else {
+        const top = path.length ? path[0] : "*";
+        for (const t of ["start", "end", "lobby", "state"]) if (top === "*" || top === t) dispatch(t);
+      }
+      notifyPeers();
+    }
+    function notifyPeers() {
+      const now = performance.now();
+      const pl = tree.players && typeof tree.players === "object" ? tree.players : {};
+      const list = [], sig = {}, ent = {};
+      for (const id of Object.keys(pl)) {
+        const p = pl[id];
+        if (!p || typeof p !== "object") continue;
+        const me = id === PID;
+        if (!ls[id]) ls[id] = { t: p.t, at: typeof p.t === "number" && Date.now() - p.t > 15e3 ? now - 1e5 : now };
+        else if (ls[id].t !== p.t) ls[id] = { t: p.t, at: now };
+        if (!me && now - ls[id].at > 6e3) continue;
+        if (typeof p.n !== "string") continue;
+        const pr = { n: p.n, c: p.c, d: p.d, s: p.s, j: p.j, sp: p.sp, v: 1 };
+        const e = { peer: id, by: null, isMe: me, sameTab: me, kind: "viewer", guest: false, presence: pr, updatedAt: Date.now() };
+        list.push(e);
+        sig[id] = JSON.stringify(pr);
+        ent[id] = e;
+      }
+      for (const id of Object.keys(ls)) if (!(id in pl)) delete ls[id];
+      const joined = [], left = [], updated = [];
+      for (const e of list) {
+        if (!(e.peer in prevSig)) joined.push(e);
+        else if (prevSig[e.peer] !== sig[e.peer]) updated.push(e);
+      }
+      for (const id of Object.keys(prevSig)) if (!(id in sig)) left.push(prevEnt[id]);
+      peerList = list;
+      prevSig = sig;
+      prevEnt = ent;
+      if (joined.length || left.length || updated.length) {
+        const ch = { peers: list, joined, left, updated };
+        for (const fn of PH.slice()) {
+          try {
+            fn(ch);
+          } catch (e) {
+          }
+        }
+      }
+    }
+    function presence(p) {
+      for (const k in p) mine[k] = p[k];
+      if (!tree.players || typeof tree.players !== "object") tree.players = {};
+      if (!tree.players[PID] || typeof tree.players[PID] !== "object") tree.players[PID] = {};
+      for (const k in p) tree.players[PID][k] = p[k];
+      const q = Object.assign({}, p);
+      if (q.n !== void 0) {
+        q.t = Date.now();
+        tree.players[PID].t = q.t;
+      }
+      queue(q);
+      notifyPeers();
+      return Promise.resolve();
+    }
+    function connect() {
+      if (closed) return;
+      clearTimeout(esT);
+      try {
+        es = new EventSource(base + ".json");
+      } catch (e) {
+        netBad(e);
+        esT = setTimeout(connect, 2e3);
+        return;
+      }
+      const cur = es;
+      cur.onopen = () => {
+        first = true;
+        netOk();
+      };
+      cur.addEventListener("put", (e) => onEv("put", e.data));
+      cur.addEventListener("patch", (e) => onEv("patch", e.data));
+      cur.addEventListener("keep-alive", () => {
+      });
+      cur.addEventListener("cancel", () => {
+        try {
+          cur.close();
+        } catch (e) {
+        }
+        netBad({ status: 403 });
+      });
+      cur.addEventListener("auth_revoked", () => {
+        try {
+          cur.close();
+        } catch (e) {
+        }
+        netBad({ status: 401 });
+      });
+      cur.onerror = () => {
+        if (closed) return;
+        netBad(null);
+        if (cur.readyState === 2) {
+          try {
+            cur.close();
+          } catch (e) {
+          }
+          esT = setTimeout(connect, 2e3);
+        }
+      };
+    }
+    function stateReady() {
+      return !(stateBusy && performance.now() - stateBusy < 3e3);
+    }
+    function emit(topic, data) {
+      if (closed) return Promise.resolve();
+      if (topic === "state") {
+        if (!stateReady()) return Promise.resolve();
+        stateBusy = performance.now();
+        return req("PUT", "/state", { from: PID, data }).then(() => {
+          stateBusy = 0;
+        }, (e) => {
+          stateBusy = 0;
+          throw e;
+        });
+      }
+      if (!H2[topic]) return Promise.reject(new Error("topic"));
+      return req("PUT", "/" + topic, { k: ++kseq, from: PID, data: data === void 0 ? {} : data });
+    }
+    if (create) await req("PUT", "", {});
+    connect();
+    const hb = setInterval(() => {
+      queue({ t: Date.now() });
+      const me = tree.players && tree.players[PID];
+      if (mine.n !== void 0 && Date.now() - joinedAt > 4e3 && !(me && typeof me.n === "string")) queue(Object.assign({}, mine, { t: Date.now() }));
+    }, 2e3);
+    const chk = setInterval(notifyPeers, 1e3);
+    return {
+      emit,
+      presence,
+      stateReady,
+      peers: () => peerList,
+      on(topic, fn) {
+        if (!H2[topic]) return () => {
+        };
+        H2[topic].push(fn);
+        return () => {
+          const i = H2[topic].indexOf(fn);
+          if (i >= 0) H2[topic].splice(i, 1);
+        };
+      },
+      onPeers(fn) {
+        PH.push(fn);
+        setTimeout(() => {
+          if (!closed && PH.indexOf(fn) >= 0) fn({ peers: peerList, joined: peerList, left: [], updated: [] });
+        }, 0);
+        return () => {
+          const i = PH.indexOf(fn);
+          if (i >= 0) PH.splice(i, 1);
+        };
+      },
+      leave() {
+        if (closed) return Promise.resolve();
+        closed = true;
+        clearInterval(hb);
+        clearInterval(chk);
+        clearTimeout(esT);
+        try {
+          if (es) es.close();
+        } catch (e) {
+        }
+        try {
+          fetch(base + "/players/" + PID + ".json", { method: "DELETE" }).catch(() => {
+          });
+        } catch (e) {
+        }
+        return Promise.resolve();
+      }
+    };
+  }
+  async function joinRoom(code, create) {
+    if (!room) return;
+    let nr;
+    try {
+      nr = await room.join(code, create);
+    } catch (e) {
+      if (e && (e.status === 401 || e.status === 403)) failOnline();
+      else note("\u3064\u306A\u304C\u308A\u306B\u304F\u3044\u3088");
+      return;
+    }
+    if (r) leaveRoom();
+    r = nr;
+    online = true;
+    roomCode = code;
+    members = [];
+    unsubs = [r.on("start", onStart), r.on("state", onStateMsg), r.on("end", onEnd), r.on("lobby", onLobbyMsg), r.onPeers(onPeers)];
+    myJoin = Date.now();
+    lastPd = 0;
+    setPresence({ n: myName, c: myColor, d: 0, s: 0, j: myJoin, v: 1, sp: mySp });
+    goLobby();
+  }
+  function leaveRoom() {
+    clearTimeout(startTimer);
+    startTimer = 0;
+    for (const u of unsubs) {
+      try {
+        u();
+      } catch (e) {
+      }
+    }
+    unsubs = [];
+    if (r) {
+      try {
+        r.leave().catch(() => {
+        });
+      } catch (e) {
+      }
+    }
+    r = null;
+    online = false;
+    roomCode = "";
+    members = [];
+    peerInput = /* @__PURE__ */ new Map();
+    netEl.hidden = true;
+  }
+  window.addEventListener("pagehide", () => {
+    if (r) {
+      try {
+        r.leave();
+      } catch (e) {
+      }
+    }
+  });
+  function computeMembers() {
+    const out = [];
+    let me = "me";
+    if (r) {
+      for (const p of r.peers()) {
+        if (p.sameTab) me = p.peer;
+        if (p.kind !== "viewer") continue;
+        const pr = p.presence;
+        if (!pr || pr.v !== 1) continue;
+        out.push({ peer: p.peer, me: !!p.sameTab, n: cleanName(pr.n), c: clampInt(pr.c, 0, 3, 0), d: clampInt(pr.d, 0, 4, 0), s: num(pr.s), sp: clampInt(pr.sp, 0, 2, 0), j: num(pr.j) || 9e15 });
+      }
+    }
+    out.sort((a, b) => a.j - b.j || (a.peer < b.peer ? -1 : a.peer > b.peer ? 1 : 0));
+    myPeer = r ? me : "me";
+    return out;
+  }
+  function onPeers(ch) {
+    members = computeMembers();
+    peerInput = /* @__PURE__ */ new Map();
+    for (const m of members) peerInput.set(m.peer, m.d);
+    for (let i = 0; i < 4; i++) if (ids[i]) {
+      const m = members.find((x) => x.peer === ids[i]);
+      if (m) names[i] = m.n;
+    }
+    if (phase === "lobby") {
+      const me = members.find((m) => m.me);
+      if (me) {
+        const idx = members.indexOf(me);
+        if (members.slice(0, idx).some((m) => m.c === me.c)) {
+          const free = [0, 1, 2, 3].find((c) => !members.some((m) => m !== me && m.c === c));
+          if (free !== void 0) {
+            myColor = free;
+            store.set("mdt_color", String(free));
+            setPresence({ c: free });
+          }
+        }
+      }
+      refreshLobby();
+      maybeStart();
+    }
+    if (ch && ch.left && ch.left.length) {
+      for (const p of ch.left) {
+        const i = ids.indexOf(p.peer);
+        if (i >= 0 && sim && isHost && sim.P[i]) sim.P[i].left = true;
+        if (i >= 0 && lastSnap && !isHost) lastSnap.P[i].f |= 8;
+      }
+      checkHost();
+    }
+  }
+  function maybeStart() {
+    if (phase !== "lobby" || !r) return;
+    const pressed = members.slice(0, 4).filter((m) => m.s > 0);
+    if (!pressed.length) {
+      clearTimeout(startTimer);
+      startTimer = 0;
+      return;
+    }
+    pressed.sort((a, b) => a.s - b.s || (a.peer < b.peer ? -1 : 1));
+    if (pressed[0].me && !startTimer) {
+      startTimer = setTimeout(() => {
+        startTimer = 0;
+        if (phase !== "lobby" || !r) return;
+        const pr = members.slice(0, 4).filter((m) => m.s > 0).sort((a, b) => a.s - b.s || (a.peer < b.peer ? -1 : 1));
+        if (!pr.length || !pr[0].me) return;
+        doStart();
+      }, 350);
+    }
+  }
+  function doStart() {
+    const mem = members.slice(0, 4), slots = ["", "", "", ""], pend = [];
+    for (const m of mem) {
+      if (!slots[m.c]) slots[m.c] = m.peer;
+      else pend.push(m.peer);
+    }
+    for (const p of pend) {
+      const k = slots.findIndex((x) => !x);
+      if (k >= 0) slots[k] = p;
+    }
+    send("start", { seed: Math.floor(Math.random() * 2147483647), t0: Date.now(), ids: slots, sp: mySp });
+  }
+  function validIds(a) {
+    if (!Array.isArray(a) || a.length !== 4) return false;
+    const seen = /* @__PURE__ */ new Set();
+    for (const x of a) {
+      if (typeof x !== "string" || x.length > 64) return false;
+      if (x) {
+        if (seen.has(x)) return false;
+        seen.add(x);
+      }
+    }
+    return seen.size > 0;
+  }
+  function onStart(m) {
+    if (!(phase === "lobby" || phase === "result")) return;
+    const d = m.data;
+    if (!d || typeof d !== "object" || !validIds(d.ids)) return;
+    clearTimeout(startTimer);
+    startTimer = 0;
+    startGame(d.ids.slice(), clampInt(d.seed, 0, 2147483647, 1), m.peer, { host: !!m.sameTab, sp: clampInt(d.sp, 0, 2, 0) });
+  }
+  function parseState(d) {
+    if (!d || typeof d !== "object") return null;
+    const k = Number(d.k), T = Number(d.T);
+    if (!Number.isInteger(k) || k < 0 || !(T >= 0 && T <= 100)) return null;
+    if (!Array.isArray(d.P) || d.P.length !== 4 || !Array.isArray(d.G) || d.G.length !== 2) return null;
+    if (typeof d.D !== "string" || !/^[0-9a-f]{100}$/.test(d.D)) return null;
+    const P = [], G = [];
+    for (const a of d.P) {
+      if (!Array.isArray(a) || a.length !== 5) return null;
+      const x = Number(a[0]), y = Number(a[1]);
+      if (!(x >= 0 && x <= 304 && y >= 0 && y <= 304)) return null;
+      P.push({ x: x / 16 - 0.5, y: y / 16 - 0.5, d: clampInt(a[2], 0, 4, 0), f: clampInt(a[3], 0, 15, 8), sc: clampInt(a[4], 0, 9999, 0) });
+    }
+    for (const a of d.G) {
+      if (!Array.isArray(a) || a.length !== 4) return null;
+      const x = Number(a[0]), y = Number(a[1]);
+      if (!(x >= 0 && x <= 304 && y >= 0 && y <= 304)) return null;
+      G.push({ x: x / 16 - 0.5, y: y / 16 - 0.5, d: clampInt(a[2], 0, 4, 0), m: clampInt(a[3], 0, 1, 0) });
+    }
+    const E = [];
+    if (Array.isArray(d.E)) for (const e of d.E.slice(0, 8)) {
+      if (Array.isArray(e) && e.length === 5) E.push([clampInt(e[0], 0, 1e9, 0), clampInt(e[1], 0, 3, 0), clampInt(e[2], 0, W, 0), clampInt(e[3], 0, H, 0), clampInt(e[4], 0, 3, 0)]);
+    }
+    return { k, T, P, G, dots: hexToDots(d.D), E, I: d.I, S: clampInt(d.S, 0, 2, 0) };
+  }
+  function onStateMsg(m) {
+    if (isHost) {
+      if (m.sameTab || !sim) return;
+      if (sim.stalled && ids.includes(m.peer)) {
+        demoteTo(m.peer);
+      }
+      return;
+    }
+    const st = parseState(m.data);
+    if (!st) return;
+    const now = performance.now();
+    if (phase === "lobby" || phase === "result") {
+      if (phase === "lobby" && now - lobbySince > 2500 && validIds(st.I) && online) {
+        startGame(st.I.slice(), 1, m.peer, { late: true, sp: st.S });
+      } else return;
+    }
+    if (phase !== "game" || solo) return;
+    if (m.peer !== hostPeer) {
+      const hostHere = r && r.peers().some((p) => p.peer === hostPeer);
+      if (hostHere && now - lastStateAt < 1500 || !ids.includes(m.peer)) return;
+      hostPeer = m.peer;
+    }
+    if (st.k <= lastK) return;
+    lastK = st.k;
+    lastStateAt = now;
+    const sn = { t: now, k: st.k, T: st.T, P: st.P, G: st.G, dots: st.dots };
+    snaps.push(sn);
+    if (snaps.length > 6) snaps.shift();
+    lastSnap = sn;
+    for (const e of st.E) {
+      if (e[0] > seenEid) {
+        seenEid = e[0];
+        playEvent(e[1], e[4]);
+      }
+    }
+  }
+  function demoteTo(peer) {
+    isHost = false;
+    hostPeer = peer;
+    stopSim();
+    sim = null;
+    snaps = [];
+    lastK = -1;
+    lastSnap = null;
+    lastStateAt = performance.now();
+  }
+  function checkHost() {
+    if (phase !== "game" || isHost || solo || mySlot < 0 || !r) return;
+    const now = performance.now();
+    if (now - gameStartAt < 1500) return;
+    const ps = r.peers();
+    const hostHere = ps.some((p) => p.peer === hostPeer);
+    if (hostHere && now - lastStateAt < 1500) return;
+    const cand = members.filter((m) => m.peer !== hostPeer && ids.includes(m.peer) && !(lastSnap && lastSnap.P[ids.indexOf(m.peer)].f & 8));
+    cand.sort((a, b) => a.j - b.j || (a.peer < b.peer ? -1 : 1));
+    if (cand.length && cand[0].me) takeOver();
+  }
+  function takeOver() {
+    const sn = lastSnap;
+    if (!sn) {
+      goLobby();
+      return;
+    }
+    const old = ids.indexOf(hostPeer);
+    sim = newSim(ids, Date.now() & 2147483647, gameSp);
+    sim.count = 0;
+    sim.T = sn.T;
+    sim.k = sn.k;
+    sim.eid = seenEid;
+    for (let i = 0; i < 4; i++) {
+      const p = sim.P[i], s = sn.P[i];
+      p.x = s.x;
+      p.y = s.y;
+      p.d = s.d;
+      p.sc = s.sc;
+      p.left = !ids[i] || !!(s.f & 8) || i === old;
+      p.act = !!ids[i];
+      p.inv = 2;
+      p.rest = s.f & 2 ? 2 : 0;
+      p.power = s.f & 1 ? 3 : 0;
+      p.want = 0;
+    }
+    for (let i = 0; i < 2; i++) {
+      const g = sim.G[i], s = sn.G[i];
+      g.x = s.x;
+      g.y = s.y;
+      g.d = s.d;
+      g.m = s.m;
+      g.t = 3;
+    }
+    sim.dots = new Uint8Array(sn.dots);
+    let left = 0;
+    for (let i = 0; i < NT; i++) {
+      const c = MAZE[i / W | 0][i % W];
+      if (c === "." && sim.dots[i]) left++;
+      if (c === "o" && !sim.dots[i]) sim.pel.push({ i, t: 15 });
+    }
+    sim.dotsLeft = left;
+    isHost = true;
+    hostPeer = myPeer;
+    startSimLoop();
+  }
+  function onEnd(m) {
+    if (phase !== "game" || isHost || solo) return;
+    if (m.peer !== hostPeer && !ids.includes(m.peer)) return;
+    const d = m.data;
+    if (!d || !Array.isArray(d.sc) || d.sc.length !== 4) return;
+    const sc = d.sc.map((v) => clampInt(v, 0, 9999, 0)), l = Array.isArray(d.l) ? d.l.slice(0, 4).map((v) => v ? 1 : 0) : [0, 0, 0, 0];
+    showResult(sc, l);
+  }
+  function onLobbyMsg(m) {
+    if (phase !== "result" && phase !== "game") return;
+    if (!ids.includes(m.peer) && m.peer !== hostPeer) return;
+    goLobby();
+  }
+  function show(id) {
+    for (const s of ["sLobby", "sGame", "sResult"]) $(s).hidden = s !== id;
+    document.body.classList.toggle("playing", id === "sGame");
+    window.scrollTo(0, 0);
+  }
+  function goLobby() {
+    stopSim();
+    sim = null;
+    isHost = false;
+    solo = false;
+    phase = "lobby";
+    lobbySince = performance.now();
+    clearTimeout(startTimer);
+    startTimer = 0;
+    myD = 0;
+    lastPd = 0;
+    if (online) setPresence({ s: 0, d: 0 });
+    show("sLobby");
+    refreshLobby();
+  }
+  function buildColors() {
+    const box = $("colors");
+    box.textContent = "";
+    for (let i = 0; i < 4; i++) {
+      const b = document.createElement("button");
+      b.className = "cbtn";
+      b.style.background = "var(--p" + i + ")";
+      b.setAttribute("aria-label", "\u3044\u308D" + (i + 1));
+      b.dataset.c = i;
+      b.addEventListener("click", () => {
+        if (b.disabled) return;
+        myColor = i;
+        store.set("mdt_color", String(i));
+        audio();
+        if (online) setPresence({ c: i });
+        refreshLobby();
+      });
+      box.appendChild(b);
+    }
+  }
+  function hostMember() {
+    if (!r || !members.length) return null;
+    const pr = members.filter((m) => m.s > 0).sort((a, b) => a.s - b.s || (a.peer < b.peer ? -1 : 1));
+    return pr.length ? pr[0] : members[0];
+  }
+  function shownSp() {
+    const h = hostMember();
+    return r && h && !h.me ? h.sp : mySp;
+  }
+  function buildSpd() {
+    const box = $("spd");
+    box.textContent = "";
+    SPNAMES.forEach((t, i) => {
+      const b = document.createElement("button");
+      b.textContent = t;
+      b.dataset.sp = i;
+      b.addEventListener("click", () => {
+        if (b.disabled) return;
+        mySp = i;
+        store.set("mdt_sp", String(i));
+        audio();
+        if (online) setPresence({ sp: i });
+        refreshLobby();
+      });
+      box.appendChild(b);
+    });
+  }
+  function refreshLobby() {
+    {
+      const h = hostMember(), lock = !!(r && h && !h.me), sp = shownSp();
+      document.querySelectorAll("#spd button").forEach((b2) => {
+        b2.disabled = lock;
+        b2.setAttribute("aria-pressed", String(Number(b2.dataset.sp) === sp));
+      });
+      $("spdNote").hidden = !lock;
+    }
+    $("onlineBtns").hidden = !room;
+    $("menuBox").hidden = !!r;
+    $("roomBox").hidden = !r;
+    const hi = num(store.get("mdt_hi"));
+    $("hi").textContent = hi > 0 ? "\u3072\u3068\u308A\u306E\u30D9\u30B9\u30C8: " + hi + "\u70B9" : "";
+    const taken = /* @__PURE__ */ new Set();
+    if (r) {
+      const idx = members.findIndex((m) => m.me);
+      members.forEach((m, k) => {
+        if (!m.me && (idx < 0 || k < idx || true) && k < (idx < 0 ? 99 : idx)) taken.add(m.c);
+      });
+    }
+    document.querySelectorAll(".cbtn").forEach((b2) => {
+      const c = Number(b2.dataset.c);
+      b2.disabled = taken.has(c);
+      b2.setAttribute("aria-pressed", String(c === myColor));
+    });
+    if (!r) return;
+    $("roomCode").textContent = roomCode;
+    const ul = $("plist");
+    ul.textContent = "";
+    const pressed = members.filter((m) => m.s > 0).sort((a, b2) => a.s - b2.s);
+    const hostP = pressed.length ? pressed[0].peer : members[0] && members[0].peer;
+    members.forEach((m, k) => {
+      const li = document.createElement("li");
+      const dot = document.createElement("span");
+      dot.className = "cdot";
+      dot.style.background = "var(--p" + m.c + ")";
+      const nm = document.createElement("span");
+      nm.textContent = m.n;
+      nm.style.flex = "1";
+      li.appendChild(dot);
+      li.appendChild(nm);
+      const tag = (t, c) => {
+        const s = document.createElement("span");
+        s.className = "tag " + (c || "");
+        s.textContent = t;
+        li.appendChild(s);
+      };
+      if (m.peer === hostP) tag("\u30DB\u30B9\u30C8");
+      if (m.me) tag("\u3042\u306A\u305F", "t2");
+      if (k >= 4) tag("\u6E80\u54E1", "t3");
+      ul.appendChild(li);
+    });
+    const meIdx = members.findIndex((m) => m.me), me = members[meIdx];
+    const inGame = performance.now() - lastStateAt < 2e3 && lastStateAt > 0 && !isHost;
+    const b = $("btnStart");
+    if (meIdx >= 4) {
+      b.disabled = true;
+      b.textContent = "\u6E80\u54E1\u3060\u3088(\u307E\u3063\u3066\u3066\u306D)";
+    } else if (inGame) {
+      b.disabled = true;
+      b.textContent = "\u30B2\u30FC\u30E0\u3061\u3085\u3046";
+    } else if (me && me.s > 0) {
+      b.disabled = true;
+      b.textContent = "\u307E\u3063\u3066\u306D\u2026";
+    } else {
+      b.disabled = false;
+      b.textContent = "\u30B9\u30BF\u30FC\u30C8";
+    }
+    $("roomMsg").textContent = members.length > 1 ? "\u307F\u3093\u306A\u305D\u308D\u3063\u305F\u3089\u30B9\u30BF\u30FC\u30C8\u3092\u304A\u3057\u3066\u306D" : "\u3068\u3082\u3060\u3061\u3092\u307E\u3063\u3066\u3044\u308B\u3088(\u3072\u3068\u308A\u3067\u3082\u30B9\u30BF\u30FC\u30C8\u3067\u304D\u308B\u3088)";
+  }
+  function validCode(c) {
+    return /^[A-Z2-9]{4}$/.test(c);
+  }
+  function genCode() {
+    const a = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+    let s = "";
+    for (let i = 0; i < 4; i++) s += a[Math.floor(Math.random() * a.length)];
+    return s;
+  }
+  $("name").value = myName === "\u30B2\u30B9\u30C8" && !store.get("mdt_name") ? "" : myName;
+  $("name").addEventListener("input", (e) => {
+    const v = e.target.value.trim();
+    myName = v ? cleanName(v) : "\u30B2\u30B9\u30C8";
+    store.set("mdt_name", myName);
+    if (online) setPresence({ n: myName });
+  });
+  $("codeIn").addEventListener("input", (e) => {
+    e.target.value = e.target.value.toUpperCase().replace(/[^A-Z2-9]/g, "").slice(0, 4);
+  });
+  $("btnSolo").addEventListener("click", () => {
+    audio();
+    startSolo();
+  });
+  $("btnCreate").addEventListener("click", () => {
+    audio();
+    joinRoom(genCode(), true);
+  });
+  $("btnJoin").addEventListener("click", () => {
+    audio();
+    const c = $("codeIn").value.toUpperCase();
+    if (!validCode(c)) {
+      note("4\u3082\u3058\u306E\u30B3\u30FC\u30C9\u3092\u3044\u308C\u3066\u306D");
+      return;
+    }
+    joinRoom(c, false);
+  });
+  $("btnLeave").addEventListener("click", () => {
+    leaveRoom();
+    goLobby();
+  });
+  $("btnStart").addEventListener("click", () => {
+    audio();
+    if (!r) return;
+    mySp = shownSp();
+    store.set("mdt_sp", String(mySp));
+    setPresence({ s: Date.now(), sp: mySp });
+  });
+  $("btnAgain").addEventListener("click", () => {
+    audio();
+    if (solo) {
+      startSolo();
+      return;
+    }
+    if (online) send("lobby", {});
+    setTimeout(() => {
+      if (phase === "result") goLobby();
+    }, 1200);
+  });
+  $("btnBack").addEventListener("click", () => {
+    if (solo && !online) {
+      goLobby();
+    } else goLobby();
+  });
+  function startSolo() {
+    const idl = ["", "", "", ""];
+    idl[myColor] = "me";
+    myPeer = "me";
+    startGame(idl, Math.floor(Math.random() * 2147483647), "me", { host: true, solo: true, sp: mySp });
+  }
+  function startGame(idl, seed, hostP, opt) {
+    opt = opt || {};
+    phase = "game";
+    ids = idl;
+    hostPeer = hostP;
+    isHost = !!opt.host;
+    solo = !!opt.solo;
+    if (solo) {
+      mySlot = idl.indexOf("me");
+    } else mySlot = idl.indexOf(myPeer);
+    names = ["", "", "", ""];
+    for (let i = 0; i < 4; i++) if (ids[i]) {
+      if (solo) names[i] = myName;
+      else {
+        const m = members.find((x) => x.peer === ids[i]);
+        names[i] = m ? m.n : "\u306A\u306A\u3057";
+      }
+    }
+    lastK = -1;
+    seenEid = 0;
+    snaps = [];
+    lastSnap = null;
+    const now = performance.now();
+    lastStateAt = now;
+    gameStartAt = now;
+    cdEnd = opt.late ? 0 : now + 3e3;
+    lastCd = 9;
+    myD = 0;
+    lastPd = 0;
+    gameSp = clampInt(opt.sp, 0, 2, 0);
+    if (isHost) {
+      sim = newSim(ids, seed, gameSp);
+      startSimLoop();
+    } else {
+      sim = null;
+    }
+    buildChips();
+    show("sGame");
+    layout();
+    $("gmsg").textContent = mySlot < 0 ? "\u304B\u3093\u305B\u3093\u4E2D\u3060\u3088" : "";
+  }
+  function setInput(d) {
+    if (phase !== "game" || mySlot < 0) return;
+    myD = d;
+    if (online && !solo && lastPd !== d) {
+      lastPd = d;
+      setPresence({ d });
+    }
+    clearTimeout(dTimer);
+    dTimer = setTimeout(() => {
+      myD = 0;
+      if (online && !solo && lastPd !== 0) {
+        lastPd = 0;
+        setPresence({ d: 0 });
+      }
+    }, 1200);
+  }
+  document.querySelectorAll(".dp").forEach((b) => {
+    const f = (e) => {
+      e.preventDefault();
+      audio();
+      setInput(Number(b.dataset.d));
+    };
+    b.addEventListener("touchstart", f, { passive: false });
+    b.addEventListener("mousedown", f);
+  });
+  const KEYS = { ArrowUp: 1, ArrowRight: 2, ArrowDown: 3, ArrowLeft: 4, w: 1, d: 2, s: 3, a: 4, W: 1, D: 2, S: 3, A: 4 };
+  window.addEventListener("keydown", (e) => {
+    if (phase !== "game") return;
+    const d = KEYS[e.key];
+    if (d) {
+      e.preventDefault();
+      setInput(d);
+    }
+  });
+  let sw = null;
+  function swMove(x, y) {
+    if (!sw) return;
+    const dx = x - sw.x, dy = y - sw.y;
+    if (Math.max(Math.abs(dx), Math.abs(dy)) < 24) return;
+    setInput(Math.abs(dx) > Math.abs(dy) ? dx > 0 ? 2 : 4 : dy > 0 ? 3 : 1);
+    sw = { x, y };
+  }
+  function bindSwipe(el) {
+    const pt = (e) => {
+      const t = e.touches && e.touches[0] || e.changedTouches && e.changedTouches[0];
+      return t || e;
+    };
+    el.addEventListener("touchstart", (e) => {
+      e.preventDefault();
+      const p = pt(e);
+      sw = { x: p.clientX, y: p.clientY };
+      audio();
+    }, { passive: false });
+    el.addEventListener("touchmove", (e) => {
+      e.preventDefault();
+      const p = pt(e);
+      swMove(p.clientX, p.clientY);
+    }, { passive: false });
+    el.addEventListener("touchend", (e) => {
+      e.preventDefault();
+      sw = null;
+    }, { passive: false });
+    el.addEventListener("touchcancel", () => {
+      sw = null;
+    });
+    el.addEventListener("mousedown", (e) => {
+      sw = { x: e.clientX, y: e.clientY };
+      audio();
+    });
+    window.addEventListener("mousemove", (e) => {
+      if (sw) swMove(e.clientX, e.clientY);
+    });
+    window.addEventListener("mouseup", () => {
+      sw = null;
+    });
+  }
+  bindSwipe($("cv"));
+  document.addEventListener("touchmove", (e) => {
+    if (phase === "game") e.preventDefault();
+  }, { passive: false });
+  document.addEventListener("gesturestart", (e) => {
+    e.preventDefault();
+  });
+  let lastTE = 0, audioUnlocked = false;
+  function unlockAudio() {
+    if (audioUnlocked) return;
+    const a = audio();
+    if (!a) return;
+    try {
+      const b = a.createBuffer(1, 1, 22050), s = a.createBufferSource();
+      s.buffer = b;
+      s.connect(a.destination);
+      s.start(0);
+      audioUnlocked = true;
+    } catch (e) {
+    }
+  }
+  document.addEventListener("touchend", (e) => {
+    const n = Date.now();
+    if (phase === "game" && n - lastTE < 350 && e.cancelable) e.preventDefault();
+    lastTE = n;
+    unlockAudio();
+  }, { passive: false });
+  document.addEventListener("click", unlockAudio);
+  $("sGame").addEventListener("contextmenu", (e) => e.preventDefault());
+  const cv = $("cv"), cx = cv.getContext("2d");
+  let tile = 19, dpr = 1, mazeCv = null;
+  function layout() {
+    dpr = Math.min(3, window.devicePixelRatio || 1);
+    const w = Math.min(window.innerWidth, 440);
+    let t = Math.floor((w - 32) / W);
+    const vis = !$("sGame").hidden;
+    const fixed = vis ? $("hudbar").offsetHeight + $("chips").offsetHeight + $("gmsg").offsetHeight + $("dpadbox").offsetHeight + 22 : 230;
+    t = Math.min(t, Math.floor((window.innerHeight - fixed) / H));
+    t = Math.max(12, Math.min(t, 26));
+    tile = t;
+    cv.width = Math.round(W * t * dpr);
+    cv.height = Math.round(H * t * dpr);
+    cv.style.width = W * t + "px";
+    cv.style.height = H * t + "px";
+    mazeDirty = true;
+    const lg2 = $("logo");
+    const lw = Math.min(window.innerWidth, 440) - 32;
+    lg2.width = Math.max(200, lw) * dpr;
+    lg2.height = 84 * dpr;
+  }
+  window.addEventListener("resize", layout);
+  window.addEventListener("orientationchange", () => {
+    setTimeout(layout, 200);
+  });
+  function rr(c, x, y, w, h, rad) {
+    rad = Math.min(rad, w / 2, h / 2);
+    c.beginPath();
+    c.moveTo(x + rad, y);
+    c.arcTo(x + w, y, x + w, y + h, rad);
+    c.arcTo(x + w, y + h, x, y + h, rad);
+    c.arcTo(x, y + h, x, y, rad);
+    c.arcTo(x, y, x + w, y, rad);
+    c.closePath();
+  }
+  function blobs(m, T, ins, col) {
+    m.fillStyle = col;
+    for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+      if (!isWall(x, y)) continue;
+      const X = x * T, Y = y * T;
+      rr(m, X + ins, Y + ins, T - 2 * ins, T - 2 * ins, Math.max(2, (T - 2 * ins) * 0.38));
+      m.fill();
+      if (x < W - 1 && isWall(x + 1, y)) m.fillRect(X + T / 2, Y + ins, T, T - 2 * ins);
+      if (y < H - 1 && isWall(x, y + 1)) m.fillRect(X + ins, Y + T / 2, T - 2 * ins, T);
+      if (x < W - 1 && y < H - 1 && isWall(x + 1, y) && isWall(x, y + 1) && isWall(x + 1, y + 1)) m.fillRect(X + T / 2, Y + T / 2, T, T);
+    }
+  }
+  function buildMaze() {
+    const T = tile;
+    mazeCv = document.createElement("canvas");
+    mazeCv.width = cv.width;
+    mazeCv.height = cv.height;
+    const m = mazeCv.getContext("2d");
+    m.scale(dpr, dpr);
+    m.fillStyle = C.maze;
+    m.fillRect(0, 0, W * T, H * T);
+    blobs(m, T, T * 0.08, C.wall);
+    blobs(m, T, T * 0.3, C.wallIn);
+    mazeDirty = false;
+  }
+  function starPath(c, x, y, r2) {
+    for (let k = 0; k < 10; k++) {
+      const a = -Math.PI / 2 + k * Math.PI / 5, rad = k % 2 ? r2 * 0.45 : r2;
+      if (k) c.lineTo(x + Math.cos(a) * rad, y + Math.sin(a) * rad);
+      else c.moveTo(x + Math.cos(a) * rad, y + Math.sin(a) * rad);
+    }
+    c.closePath();
+  }
+  const ANG = [0, -Math.PI / 2, 0, Math.PI / 2, Math.PI];
+  function drawChar(c, px, py, R, color, d, mouth, o) {
+    c.save();
+    let alpha = 1;
+    if (o.rest) alpha = 0.35;
+    else if (o.inv) alpha = Math.floor(o.t / 90) % 2 ? 0.35 : 1;
+    c.globalAlpha = alpha;
+    let col = color;
+    if (o.power) {
+      col = "hsl(" + o.t / 3 % 360 + ",95%,62%)";
+      c.shadowColor = col;
+      c.shadowBlur = R * 0.9;
+    }
+    const ang = ANG[d];
+    c.fillStyle = col;
+    c.strokeStyle = C.outline;
+    c.lineWidth = Math.max(1.5, R * 0.14);
+    c.lineJoin = "round";
+    c.beginPath();
+    if (o.scared || d === 0 && false) {
+      c.arc(px, py, R, 0, Math.PI * 2);
+    } else {
+      c.moveTo(px, py);
+      c.arc(px, py, R, ang + mouth, ang + Math.PI * 2 - mouth);
+      c.closePath();
+    }
+    c.fill();
+    c.shadowBlur = 0;
+    c.stroke();
+    const fx = Math.cos(ang), fy = Math.sin(ang);
+    const er = R * (o.scared ? 0.3 : 0.25), ey = py - R * 0.32;
+    for (const s of [-1, 1]) {
+      const ex = px + s * R * 0.32;
+      c.fillStyle = C.eye;
+      c.lineWidth = Math.max(1, R * 0.07);
+      c.beginPath();
+      if (o.scared) c.ellipse(ex, ey, er * 0.9, er * 1.2, 0, 0, Math.PI * 2);
+      else c.arc(ex, ey, er, 0, Math.PI * 2);
+      c.fill();
+      c.stroke();
+      c.fillStyle = C.pupil;
+      c.beginPath();
+      c.arc(ex + (o.scared ? 0 : fx * er * 0.4), ey + (o.scared ? 0 : fy * er * 0.4), er * (o.scared ? 0.35 : 0.5), 0, Math.PI * 2);
+      c.fill();
+    }
+    if (o.scared) {
+      c.fillStyle = C.pupil;
+      c.beginPath();
+      c.ellipse(px, py + R * 0.38, R * 0.15, R * 0.2, 0, 0, Math.PI * 2);
+      c.fill();
+    }
+    c.restore();
+    if (o.rest) {
+      c.save();
+      c.fillStyle = C.text;
+      c.font = "bold " + Math.round(R * 0.9) + "px sans-serif";
+      c.textAlign = "center";
+      c.fillText("Zzz", px + R * 0.5, py - R * 0.9);
+      c.restore();
+    }
+    if (o.power) {
+      c.save();
+      c.fillStyle = "#fff";
+      for (let k = 0; k < 3; k++) {
+        const a = o.t / 160 + k * Math.PI * 2 / 3;
+        c.beginPath();
+        starPath(c, px + Math.cos(a) * R * 1.25, py + Math.sin(a) * R * 1.25, R * 0.3);
+        c.fill();
+      }
+      c.restore();
+    }
+    if (o.me) {
+      c.save();
+      c.fillStyle = color;
+      c.strokeStyle = C.outline;
+      c.lineWidth = 1.5;
+      c.beginPath();
+      c.moveTo(px - R * 0.4, py - R * 1.55);
+      c.lineTo(px + R * 0.4, py - R * 1.55);
+      c.lineTo(px, py - R * 1.1);
+      c.closePath();
+      c.fill();
+      c.stroke();
+      c.restore();
+    }
+  }
+  function drawGhost(c, px, py, R, t, o) {
+    c.save();
+    c.globalAlpha = o.dead ? 0.35 : 1;
+    c.fillStyle = o.scared ? C.ghost2 : C.ghost;
+    c.strokeStyle = C.outline;
+    c.lineWidth = Math.max(1.5, R * 0.14);
+    c.lineJoin = "round";
+    const bw = 2 * R / 3, by = py + R * 0.8;
+    c.beginPath();
+    c.moveTo(px - R, by);
+    c.lineTo(px - R, py);
+    c.arc(px, py, R, Math.PI, 0);
+    c.lineTo(px + R, by);
+    for (let i = 0; i < 3; i++) {
+      const x1 = px + R - bw * i, wob = Math.sin(t / 120 + i * 1.7) * R * 0.08;
+      c.quadraticCurveTo(x1 - bw / 2, by + R * 0.45 + wob, x1 - bw, by);
+    }
+    c.closePath();
+    c.fill();
+    c.stroke();
+    const er = R * 0.42;
+    c.fillStyle = C.eye;
+    c.beginPath();
+    c.arc(px, py - R * 0.05, er, 0, Math.PI * 2);
+    c.fill();
+    c.lineWidth = Math.max(1, R * 0.07);
+    c.stroke();
+    const f = o.surprised || o.scared;
+    c.fillStyle = C.pupil;
+    c.beginPath();
+    c.arc(px + (f ? 0 : Math.cos(ANG[o.d]) * er * 0.4), py - R * 0.05 + (f ? 0 : Math.sin(ANG[o.d]) * er * 0.4), er * (f ? 0.3 : 0.5), 0, Math.PI * 2);
+    c.fill();
+    if (f) {
+      c.beginPath();
+      c.ellipse(px, py + R * 0.55, R * 0.14, R * 0.18, 0, 0, Math.PI * 2);
+      c.fill();
+    }
+    c.restore();
+  }
+  function lerp(a, b, u) {
+    return Math.abs(b - a) > 2 ? b : a + (b - a) * u;
+  }
+  function snapView(a) {
+    return { T: a.T, P: a.P, G: a.G, dots: a.dots };
+  }
+  function clientView(now) {
+    const sn = snaps;
+    if (!sn.length) return null;
+    const rt = now - 250;
+    let a = null, b = null;
+    for (let i = 0; i < sn.length - 1; i++) if (sn[i].t <= rt && rt <= sn[i + 1].t) {
+      a = sn[i];
+      b = sn[i + 1];
+      break;
+    }
+    if (!b) return snapView(rt > sn[sn.length - 1].t ? sn[sn.length - 1] : sn[0]);
+    const u = (rt - a.t) / Math.max(1, b.t - a.t);
+    return {
+      T: b.T,
+      dots: b.dots,
+      P: b.P.map((p, i) => ({ x: lerp(a.P[i].x, p.x, u), y: lerp(a.P[i].y, p.y, u), d: p.d, f: p.f, sc: p.sc })),
+      G: b.G.map((g, i) => ({ x: lerp(a.G[i].x, g.x, u), y: lerp(a.G[i].y, g.y, u), d: g.d, m: g.m }))
+    };
+  }
+  function hostView() {
+    const s = sim;
+    return {
+      T: s.T,
+      dots: s.dots,
+      P: s.P.map((p) => ({ x: p.x, y: p.y, d: p.d, f: flagsOf(p), sc: p.sc })),
+      G: s.G.map((g) => ({ x: g.x, y: g.y, d: g.d, m: g.m }))
+    };
+  }
+  let chipEls = [], hudCache = ["", "", "", "", ""];
+  function buildChips() {
+    const box = $("chips");
+    box.textContent = "";
+    chipEls = [];
+    hudCache = ["", "", "", "", ""];
+    for (let i = 0; i < 4; i++) {
+      const d = document.createElement("div");
+      d.className = "chip";
+      const cn = document.createElement("span");
+      cn.className = "cn";
+      const cs = document.createElement("span");
+      cs.className = "cs";
+      const dot = document.createElement("span");
+      dot.className = "cdot";
+      dot.style.background = "var(--p" + i + ")";
+      const sc = document.createElement("span");
+      cs.appendChild(dot);
+      cs.appendChild(sc);
+      d.appendChild(cn);
+      d.appendChild(cs);
+      if (!ids[i]) d.hidden = true;
+      if (i === mySlot) d.classList.add("me");
+      cn.textContent = names[i];
+      box.appendChild(d);
+      chipEls.push({ d, cn, sc });
+    }
+  }
+  function updateHud(v) {
+    const tt = "\u306E\u3053\u308A " + Math.ceil(v.T);
+    if (hudCache[4] !== tt) {
+      $("timer").textContent = tt;
+      hudCache[4] = tt;
+    }
+    for (let i = 0; i < 4; i++) {
+      if (!ids[i]) continue;
+      const gone = !!(v.P[i].f & 8), s = gone ? "\u306C\u3051\u305F" : String(v.P[i].sc), key = s + "|" + names[i];
+      if (hudCache[i] !== key) {
+        hudCache[i] = key;
+        chipEls[i].sc.textContent = s;
+        chipEls[i].cn.textContent = names[i];
+        chipEls[i].d.classList.toggle("gone", gone);
+      }
+    }
+  }
+  function renderGame(now) {
+    if (mazeDirty || !mazeCv) buildMaze();
+    const v = isHost && sim ? hostView() : clientView(now);
+    const T = tile;
+    cx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    cx.drawImage(mazeCv, 0, 0, W * T, H * T);
+    if (!v) {
+      cx.fillStyle = C.text;
+      cx.font = "bold " + Math.round(T * 1.1) + "px sans-serif";
+      cx.textAlign = "center";
+      cx.fillText("\u3064\u306A\u304C\u3063\u3066\u3044\u307E\u3059\u2026", W * T / 2, H * T / 2);
+      return;
+    }
+    cx.fillStyle = C.dot;
+    cx.beginPath();
+    for (let i = 0; i < NT; i++) {
+      if (!v.dots[i]) continue;
+      const x = i % W, y = i / W | 0;
+      if (MAZE[y][x] === "o") continue;
+      starPath(cx, (x + 0.5) * T, (y + 0.5) * T, T * 0.17);
+    }
+    cx.fill();
+    const pr = T * (0.3 + 0.05 * Math.sin(now / 170));
+    for (let i = 0; i < NT; i++) {
+      if (!v.dots[i]) continue;
+      const x = i % W, y = i / W | 0;
+      if (MAZE[y][x] !== "o") continue;
+      cx.fillStyle = C.pellet;
+      cx.strokeStyle = C.eye;
+      cx.lineWidth = 2;
+      cx.beginPath();
+      cx.arc((x + 0.5) * T, (y + 0.5) * T, pr, 0, Math.PI * 2);
+      cx.fill();
+      cx.stroke();
+    }
+    const R = T * 0.42;
+    const pw = [];
+    let anyPow = false;
+    for (let i = 0; i < 4; i++) {
+      const p = v.P[i];
+      if (ids[i] && !(p.f & 8) && p.f & 1) {
+        pw.push(p);
+        anyPow = true;
+      }
+    }
+    const near = (x, y, self) => pw.some((p) => p !== self && (p.x - x) ** 2 + (p.y - y) ** 2 < 12);
+    for (const g of v.G) {
+      drawGhost(cx, (g.x + 0.5) * T, (g.y + 0.5) * T, R, now, { d: g.d, dead: !!g.m, scared: anyPow && !g.m, surprised: !g.m && near(g.x, g.y) });
+    }
+    const order = [0, 1, 2, 3].filter((i) => i !== mySlot);
+    if (mySlot >= 0) order.push(mySlot);
+    for (const i of order) {
+      const p = v.P[i];
+      if (!ids[i] || p.f & 8) continue;
+      const moving = p.d !== 0;
+      const mouth = moving ? 0.05 + 0.42 * (0.5 + 0.5 * Math.sin(now / 55 + i)) : 0.4;
+      drawChar(
+        cx,
+        (p.x + 0.5) * T,
+        (p.y + 0.5) * T,
+        R,
+        C.p[i],
+        p.d || 2,
+        mouth,
+        { t: now, power: !!(p.f & 1), rest: !!(p.f & 2), inv: !!(p.f & 4), scared: !(p.f & 1) && !(p.f & 2) && near(p.x, p.y, p), me: i === mySlot }
+      );
+    }
+    updateHud(v);
+    const cd = isHost && sim ? sim.count > 0 ? Math.ceil(sim.count) : 0 : cdEnd > now ? Math.ceil((cdEnd - now) / 1e3) : 0;
+    if (cd > 0) {
+      cx.fillStyle = "rgba(0,0,0,.25)";
+      cx.fillRect(0, 0, W * T, H * T);
+      cx.fillStyle = "#fff";
+      cx.strokeStyle = C.outline;
+      cx.lineWidth = T * 0.3;
+      cx.lineJoin = "round";
+      cx.font = "900 " + Math.round(T * 6) + "px sans-serif";
+      cx.textAlign = "center";
+      cx.textBaseline = "middle";
+      cx.strokeText(String(cd), W * T / 2, H * T / 2);
+      cx.fillText(String(cd), W * T / 2, H * T / 2);
+      cx.textBaseline = "alphabetic";
+      if (cd !== lastCd) {
+        lastCd = cd;
+        beep(520, 0.12, "square", 0.06);
+      }
+    } else if (lastCd > 0 && lastCd < 9) {
+      lastCd = 0;
+      beep(880, 0.35, "square", 0.06, 0, 1320);
+    }
+  }
+  const lg = $("logo"), lcx = lg.getContext("2d");
+  function drawLogo(now) {
+    const w = lg.width / dpr, h = 84;
+    lcx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    lcx.clearRect(0, 0, w, h);
+    const R = 17, y = 44, P = w + 260, L = now * 0.07 % P - 150;
+    lcx.fillStyle = C.dot;
+    lcx.beginPath();
+    for (let x = 10; x < w; x += 24) if (x > L + 10) starPath(lcx, x, y, 5);
+    lcx.fill();
+    for (let i = 0; i < 4; i++) {
+      drawChar(lcx, L - i * 42, y + Math.sin(now / 200 + i) * 3, R, C.p[i], 2, 0.05 + 0.4 * (0.5 + 0.5 * Math.sin(now / 60 + i)), { t: now });
+    }
+    drawGhost(lcx, L - 4 * 42 - 12, y, R, now, { d: 2 });
+  }
+  let lastLayoutPhase = "";
+  function frame(now) {
+    requestAnimationFrame(frame);
+    if (phase === "game") renderGame(now);
+    else if (phase === "lobby" && !$("sLobby").hidden) {
+      drawLogo(now);
+    }
+  }
+  setInterval(() => {
+    checkHost();
+    if (phase === "lobby" && r) refreshLobby();
+  }, 300);
+  function showResult(sc, l) {
+    phase = "result";
+    stopSim();
+    clearTimeout(dTimer);
+    const list = [];
+    for (let i = 0; i < 4; i++) if (ids[i]) list.push({ i, sc: sc[i], gone: !!l[i] });
+    const live = list.filter((x) => !x.gone);
+    for (const x of list) x.rank = x.gone ? 99 : 1 + live.filter((y) => y.sc > x.sc).length;
+    list.sort((a, b) => a.rank - b.rank || b.sc - a.sc || a.i - b.i);
+    const ol = $("resList");
+    ol.textContent = "";
+    for (const x of list) {
+      const li = document.createElement("li");
+      li.className = "rrow" + (x.gone ? " gone" : "") + (x.rank === 1 ? " first" : "");
+      const rk = document.createElement("span");
+      rk.className = "rk";
+      rk.textContent = x.gone ? "" : x.rank === 1 ? "\u{1F451}" : String(x.rank);
+      const dot = document.createElement("span");
+      dot.className = "cdot";
+      dot.style.background = "var(--p" + x.i + ")";
+      const nm = document.createElement("span");
+      nm.className = "nm";
+      nm.textContent = names[x.i] || "\u306A\u306A\u3057";
+      const pt = document.createElement("span");
+      pt.textContent = x.gone ? "\u306C\u3051\u305F" : x.sc + "\u70B9";
+      li.appendChild(rk);
+      li.appendChild(dot);
+      li.appendChild(nm);
+      li.appendChild(pt);
+      ol.appendChild(li);
+    }
+    let msg = "";
+    if (solo) {
+      const mine = mySlot >= 0 ? sc[mySlot] : 0, hi = num(store.get("mdt_hi"));
+      if (mine > hi) {
+        store.set("mdt_hi", String(mine));
+        msg = "\u3042\u305F\u3089\u3057\u3044\u30D9\u30B9\u30C8\u30B9\u30B3\u30A2!";
+      } else msg = "\u30D9\u30B9\u30C8: " + hi + "\u70B9";
+      $("resTitle").textContent = "\u304A\u3064\u304B\u308C\u3055\u307E!";
+    } else {
+      const top = live.length ? Math.max(...live.map((x) => x.sc)) : 0;
+      const win = live.filter((x) => x.sc === top).map((x) => names[x.i] || "\u306A\u306A\u3057");
+      $("resTitle").textContent = win.length ? win.join("\u30FB") + " \u306E\u304B\u3061!" : "\u3051\u3063\u304B";
+      msg = mySlot < 0 ? "\u307F\u3093\u306A\u304A\u3064\u304B\u308C\u3055\u307E!" : "";
+    }
+    $("resMsg").textContent = msg;
+    beep(660, 0.15, "square", 0.06);
+    beep(880, 0.15, "square", 0.06, 0.15);
+    beep(1320, 0.3, "square", 0.06, 0.3);
+    show("sResult");
+  }
+  buildColors();
+  buildSpd();
+  layout();
+  refreshLobby();
+  updMute();
+  requestAnimationFrame(frame);
+  initRoom();
+})();
+</script>
+</body>
+</html>
