@@ -8,7 +8,7 @@
 <style>
 :root{
   --bg:#fff2cf; --card:#ffffff; --text:#3a2e5f; --sub:#7a6da6;
-  --maze:#eef7ff; --wall:#5a6cf5; --wall-in:#cfd7ff;
+  --maze:#eef7ff; --wall:#5a6cf5; --wall-in:#cfd7ff; --wall2:#33a866; --wall-in2:#cdeed9; --wall3:#ee8420; --wall-in3:#ffe1bf; --wall4:#e0489a; --wall-in4:#ffd0e8;
   --dot:#ff8a00; --pellet:#ff4f9a;
   --p0:#ffc928; --p1:#2cc3f2; --p2:#ff6fae; --p3:#4cc94c; --p4:#ff8a2a; --pad-hi:#a9b4ff;
   --ghost:#9a63e8; --ghost2:#a4a6bd; --fright:#3b63ff; --fright2:#ffffff; --fr-red:#ef3b4a; --fr-green:#3fae4a; --fr-yel:#ffd23f; --fr-pur:#8e4bd6;
@@ -19,7 +19,7 @@
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
     --bg:#0f1635; --card:#1b2556; --text:#f3f0ff; --sub:#b4b0e6;
-    --maze:#0a1030; --wall:#8f8bff; --wall-in:#1a2166;
+    --maze:#0a1030; --wall:#8f8bff; --wall-in:#1a2166; --wall2:#5fe0a0; --wall-in2:#123a2a; --wall3:#ffa84d; --wall-in3:#3d2610; --wall4:#ff7fc0; --wall-in4:#3d1530;
     --dot:#ffe27a; --pellet:#ff8ac6;
     --p0:#ffd84d; --p1:#4fd6ff; --p2:#ff8cc2; --p3:#6be36b; --p4:#ff9a45; --pad-hi:#c4ccff;
     --ghost:#b48cff; --ghost2:#8d93b8; --fright:#4f7dff; --fright2:#ffffff; --fr-red:#ff5a66; --fr-green:#58cc62; --fr-yel:#ffe06a; --fr-pur:#b07cf0;
@@ -30,7 +30,7 @@
 }
 :root[data-theme="dark"]{
   --bg:#0f1635; --card:#1b2556; --text:#f3f0ff; --sub:#b4b0e6;
-  --maze:#0a1030; --wall:#8f8bff; --wall-in:#1a2166;
+  --maze:#0a1030; --wall:#8f8bff; --wall-in:#1a2166; --wall2:#5fe0a0; --wall-in2:#123a2a; --wall3:#ffa84d; --wall-in3:#3d2610; --wall4:#ff7fc0; --wall-in4:#3d1530;
   --dot:#ffe27a; --pellet:#ff8ac6;
   --p0:#ffd84d; --p1:#4fd6ff; --p2:#ff8cc2; --p3:#6be36b; --p4:#ff9a45; --pad-hi:#c4ccff;
   --ghost:#b48cff; --ghost2:#8d93b8; --fright:#4f7dff; --fright2:#ffffff; --fr-red:#ff5a66; --fr-green:#58cc62; --fr-yel:#ffe06a; --fr-pur:#b07cf0;
@@ -67,9 +67,13 @@ input:focus{outline:3px solid var(--focus);outline-offset:1px}
 .btn.b3{background:var(--btn3);color:var(--btn3-text)}
 .btn:disabled{background:var(--disabled);color:var(--sub);box-shadow:none}
 .btn:focus-visible,.cbtn:focus-visible,#mute:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+.srow{display:flex;align-items:center;margin:5px 0}
+.slbl{width:62px;flex:none;font-size:12px;font-weight:800;color:var(--sub)}
+.srow .spd,.srow .colors{flex:1;margin:0;min-width:0}
+.srow .colors{justify-content:flex-start}
 .spd{display:flex;margin:6px 0 2px}
 .spd button+button{margin-left:8px}
-.spd button{flex:1;min-height:48px;border:3px solid var(--btn3);border-radius:16px;background:var(--btn3);color:var(--btn3-text);font-size:16px;font-weight:800;font-family:inherit;touch-action:manipulation}
+.spd button{flex:1;min-width:0;min-height:40px;border:3px solid var(--btn3);border-radius:14px;background:var(--btn3);color:var(--btn3-text);font-size:14px;font-weight:800;font-family:inherit;touch-action:manipulation}
 .spd button[aria-pressed="true"]{background:var(--btn2);border-color:var(--text);color:#fff}
 .spd button:disabled{opacity:.75}
 .spd button:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
@@ -78,8 +82,8 @@ input:focus{outline:3px solid var(--focus);outline-offset:1px}
 .joinrow input{width:110px;flex:none;letter-spacing:4px;text-transform:uppercase}
 .joinrow .btn{margin:8px 0}
 .colors{display:flex;justify-content:center;margin:6px 0 2px}
-.cbtn+.cbtn{margin-left:8px}
-.cbtn{width:48px;height:48px;border-radius:50%;border:4px solid var(--btn3);padding:0;position:relative;touch-action:manipulation}
+.cbtn+.cbtn{margin-left:6px}
+.cbtn{width:40px;height:40px;border-radius:50%;border:4px solid var(--btn3);padding:0;position:relative;touch-action:manipulation}
 .cbtn[aria-pressed="true"]{border-color:var(--text);transform:scale(1.08)}
 .cbtn:disabled{background:var(--disabled)!important;opacity:.55}
 .code{font-size:38px;font-weight:900;letter-spacing:8px;text-align:center;color:var(--btn2)}
@@ -130,15 +134,13 @@ ol{list-style:none;margin:10px 0;padding:0}
     <div class="card">
       <label class="lbl" for="name">なまえ(6もじまで)</label>
       <input id="name" maxlength="6" autocomplete="off" placeholder="なまえ">
-      <div class="lbl">いろをえらぼう</div>
-      <div id="colors" class="colors"></div>
-      <div class="lbl">ボタンのおおきさ</div>
-      <div id="padsz" class="spd"></div>
-      <div class="lbl">スピード</div>
-      <div id="spd" class="spd"></div>
-      <div class="lbl">モード</div>
-      <div id="mode" class="spd"></div>
-      <div id="spdNote" class="small" style="text-align:center" hidden>スピードとモードはホストがきめるよ</div>
+      <div class="srow"><div class="slbl">キャラ</div><div id="colors" class="colors"></div></div>
+      <div class="srow"><div class="slbl">スピード</div><div id="spd" class="spd"></div></div>
+      <div class="srow"><div class="slbl">モード</div><div id="mode" class="spd"></div></div>
+      <div class="srow"><div class="slbl">ステージ</div><div id="stage" class="spd"></div></div>
+      <div class="srow"><div class="slbl">ボタン</div><div id="padsz" class="spd"></div></div>
+      <div class="srow"><div class="slbl">いろ</div><div id="theme" class="spd"></div></div>
+      <div id="spdNote" class="small" style="text-align:center" hidden>スピード・モード・ステージはホストがきめるよ</div>
       <button id="btnHow" type="button">あそびかた</button>
       <div id="howBox" hidden></div>
     </div>
@@ -185,37 +187,29 @@ ol{list-style:none;margin:10px 0;padding:0}
 (() => {
   "use strict";
   const BIG_SCALE = 3;
-  const MAZE = [
-    "###################",
-    "#o.......#.......o#",
-    "#.###.##.#.##.###.#",
-    "#1...............2#",
-    "#.###.#.###.#.###.#",
-    "#.....#.....#.....#",
-    "#####.###.###.#####",
-    "#####.#.....#.#####",
-    "#####.#.###.#.#####",
-    "     ...#G#...     ",
-    "#####.#..G..#.#####",
-    "#####.#.###.#.#####",
-    "#####.#.....#.#####",
-    "#####.###.###.#####",
-    "#.....#.....#.....#",
-    "#.###.#.###.#.###.#",
-    "#o..#.........#..o#",
-    "#.#.#.###.###.#.#.#",
-    "#.#.....#.#.....#.#",
-    "#3...............4#",
-    "###################"
+  const MAZES = [
+    ["###################", "#o.......#.......o#", "#.###.##.#.##.###.#", "#1...............2#", "#.###.#.###.#.###.#", "#.....#.....#.....#", "#####.###.###.#####", "#####.#.....#.#####", "#####.#.###.#.#####", "     ...#G#...     ", "#####.#..G..#.#####", "#####.#.###.#.#####", "#####.#.....#.#####", "#####.###.###.#####", "#.....#.....#.....#", "#.###.#.###.#.###.#", "#o..#.........#..o#", "#.#.#.###.###.#.#.#", "#.#.....#.#.....#.#", "#3...............4#", "###################"],
+    ["###################", "#o...............o#", "#.###.##...##.###.#", "#1...............2#", "#.###.#.#.#.#.###.#", "#.....#.....#.....#", "#####.###.###.#####", "#####.#.....#.#####", "#####.#.###.#.#####", "     ...#G#...     ", "#####.#..G..#.#####", "#####.#.###.#.#####", "#####.#.....#.#####", "#####.###.###.#####", "#...#.........#...#", "#.#.#.###.###.#.#.#", "#o#.............#o#", "#.#.#.###.###.#.#.#", "#.................#", "#3...............4#", "###################"],
+    ["###################", "#o...............o#", "#.###############.#", "#1...............2#", "#.###.#######.###.#", "#.................#", "#####.###.###.#####", "#####.#.....#.#####", "#####.#.###.#.#####", "     ...#G#...     ", "#####.#..G..#.#####", "#####.#.###.#.#####", "#####.#.....#.#####", "#####.###.###.#####", "#.................#", "#.###############.#", "#o...............o#", "#.###############.#", "#.###############.#", "#3...............4#", "###################"],
+    ["###################", "#o...............o#", "#.###.#######.###.#", "#1...............2#", "#.#######.#######.#", "#.................#", "#####.###.###.#####", "#####.#.....#.#####", "#####.#.###.#.#####", "     ...#G#...     ", "#####.#..G..#.#####", "#####.#.###.#.#####", "#####.#.....#.#####", "#####.###.###.#####", "#.................#", "#.#######.#######.#", "#o...............o#", "#.###.#######.###.#", "#.###.#######.###.#", "#3...............4#", "###################"]
   ];
+  let MAZE = MAZES[0], curMaze = 0, fadeAt = 0;
   const W = 19, H = 21, NT = W * H;
   const DX = [0, 0, 1, 0, -1], DY = [0, -1, 0, 1, 0], OPP = [0, 3, 4, 1, 2];
   const STARTS = [[1, 3], [17, 3], [1, 19], [17, 19]];
   const GSTART = [[9, 9], [9, 10]];
   const SPEEDS = [[3.5, 2.8], [4.5, 3.7], [6, 5]], SPNAMES = ["\u3086\u3063\u304F\u308A", "\u3075\u3064\u3046", "\u306F\u3084\u3044"];
   const isWall = (x, y) => MAZE[y][x] === "#";
-  let DOTCOUNT = 0;
-  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) if (MAZE[y][x] === ".") DOTCOUNT++;
+  let DOTCOUNT = 0, DISTMAP = null, mazeDirty0 = true;
+  function setMaze(i) {
+    curMaze = clampInt(i, 0, 3, 0);
+    MAZE = MAZES[curMaze];
+    DISTMAP = null;
+    DOTCOUNT = 0;
+    for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) if (MAZE[y][x] === ".") DOTCOUNT++;
+    mazeDirty = true;
+    fadeAt = performance.now();
+  }
   const $ = (id) => document.getElementById(id);
   const store = { get(k) {
     try {
@@ -245,6 +239,8 @@ ol{list-style:none;margin:10px 0;padding:0}
   function readColors() {
     const cs = getComputedStyle(document.documentElement), g = (n) => cs.getPropertyValue(n).trim();
     C = {
+      walls: [g("--wall"), g("--wall2"), g("--wall3"), g("--wall4")],
+      wallsIn: [g("--wall-in"), g("--wall-in2"), g("--wall-in3"), g("--wall-in4")],
       btn2: g("--btn2"),
       padHi: g("--pad-hi"),
       fright: g("--fright"),
@@ -287,9 +283,11 @@ ol{list-style:none;margin:10px 0;padding:0}
   let mySp = clampInt(store.get("mdt_sp"), 0, 2, 0), gameSp = 0;
   let myMode = clampInt(store.get("mdt_mode"), 0, 1, 0), gameMode = 0, slotCol = [0, 1, 2, 3], pops = [], dyAt = [0, 0, 0, 0], bigS = [0, 1, 2, 3].map(() => ({ on: false, t0: 0, off0: 0, from: 1, last: 1 }));
   const MODES = ["\u3076\u3064\u304B\u308B", "\u3068\u308A\u3042\u3046"];
+  let myStage = clampInt(store.get("mdt_stage"), 0, 3, 0), myTheme = clampInt(store.get("mdt_theme"), 0, 2, 0);
+  const THN = ["\u3058\u3069\u3046", "\u3042\u304B\u308B\u3044", "\u3088\u308B"];
   const PADN = ["\u3075\u3064\u3046", "\u304A\u304A\u304D\u3044", "\u3068\u304F\u3060\u3044"], PADF = [0.271, 0.38, 0.488];
-  let myPad = clampInt(store.get("mdt_pad"), 0, 2, 1);
-  const HOW = ["\u30C9\u30C3\u30C8\u3092 \u305F\u3079\u3066 \u3066\u3093\u3092 \u3042\u3064\u3081\u3088\u3046\u3002\u304A\u304A\u304D\u3044 \u307E\u308B\u3092 \u305F\u3079\u308B\u3068 \u304A\u3070\u3051\u304C \u3042\u304A\u304F\u306A\u308B\u3088\u3002\u3042\u304A\u3044 \u304A\u3070\u3051\u306F \u3060\u308C\u3067\u3082 \u305F\u3079\u3089\u308C\u3066 +10\u3066\u3093\u3002\u3075\u3064\u3046\u306E \u304A\u3070\u3051\u306B \u3055\u308F\u3089\u308C\u308B\u3068 \u30CF\u30FC\u30C8\u304C \u3078\u308B\u3088\u3002\u30CF\u30FC\u30C8\u304C \u306A\u304F\u306A\u3063\u305F\u3089 \u307F\u3066\u3066\u306D\u3002\u3055\u3044\u3054\u306E \u3072\u3068\u308A\u306B \u306A\u308B\u307E\u3067 \u3044\u304D\u306E\u3053\u308D\u3046! \u304A\u3070\u3051\u306F \u3060\u3093\u3060\u3093 \u306F\u3084\u304F\u306A\u308B\u3088\u3002\u3068\u3082\u3060\u3061\u3068 \u3076\u3064\u304B\u308B\u3068 \u307D\u3088\u3093\u3068 \u306F\u306D\u304B\u3048\u308B\u3088\u3002\u30D5\u30EB\u30FC\u30C4\u306F +20\u3066\u3093\u3002", "90\u3073\u3087\u3046\u3067 \u3066\u3093\u304C \u304A\u304A\u3044 \u3072\u3068\u306E \u304B\u3061\u3002\u30C9\u30C3\u30C8\u3092 \u305F\u3079\u3066\u3001\u304A\u304A\u304D\u3044 \u307E\u308B\u3092 \u305F\u3079\u308B\u3068 \u304A\u3070\u3051\u304C \u3042\u304A\u304F\u306A\u308B\u3088\u3002\u3042\u304A\u3044 \u304A\u3070\u3051\u306F \u3060\u308C\u3067\u3082 \u305F\u3079\u3089\u308C\u3066 +10\u3066\u3093\u3002\u3078\u3093\u3057\u3093\u3061\u3085\u3046\u306F \u3068\u3082\u3060\u3061\u306B \u3055\u308F\u308B\u3068 \u3066\u3093\u3092 \u3046\u3070\u3048\u308B\u3088\u3002\u3075\u3064\u3046\u306E \u304A\u3070\u3051\u306B \u3055\u308F\u3089\u308C\u308B\u3068 5\u3066\u3093 \u3078\u3063\u3066 \u3061\u3087\u3063\u3068\u304A\u3084\u3059\u307F\u3002\u30D5\u30EB\u30FC\u30C4\u306F +20\u3066\u3093\u3002"];
+  let myPad = store.get("mdt_pad") === null ? 1 : clampInt(store.get("mdt_pad"), 0, 2, 1);
+  const HOW = ["\u30C9\u30C3\u30C8\u3092 \u305F\u3079\u3066 \u3066\u3093\u3092 \u3042\u3064\u3081\u3088\u3046\u3002\u304A\u304A\u304D\u3044 \u307E\u308B\u3092 \u305F\u3079\u308B\u3068 \u304A\u3070\u3051\u304C \u3042\u304A\u304F\u306A\u308B\u3088\u3002\u3042\u304A\u3044 \u304A\u3070\u3051\u306F \u3060\u308C\u3067\u3082 \u305F\u3079\u3089\u308C\u3066 +10\u3066\u3093\u3002\u3075\u3064\u3046\u306E \u304A\u3070\u3051\u306B \u3055\u308F\u3089\u308C\u308B\u3068 \u30CF\u30FC\u30C8\u304C \u3078\u308B\u3088\u3002\u30CF\u30FC\u30C8\u304C \u306A\u304F\u306A\u3063\u305F\u3089 \u307F\u3066\u3066\u306D\u3002\u3055\u3044\u3054\u306E \u3072\u3068\u308A\u306B \u306A\u308B\u307E\u3067 \u3044\u304D\u306E\u3053\u308D\u3046! \u304A\u3070\u3051\u306F \u3060\u3093\u3060\u3093 \u306F\u3084\u304F\u306A\u308B\u3088\u3002\u30C9\u30C3\u30C8\u3092 \u305C\u3093\u3076 \u305F\u3079\u308B\u3068 \u3064\u304E\u306E \u3081\u3044\u308D\u3078!\u3068\u3082\u3060\u3061\u3068 \u3076\u3064\u304B\u308B\u3068 \u307D\u3088\u3093\u3068 \u306F\u306D\u304B\u3048\u308B\u3088\u3002\u30D5\u30EB\u30FC\u30C4\u306F +20\u3066\u3093\u3002", "90\u3073\u3087\u3046\u3067 \u3066\u3093\u304C \u304A\u304A\u3044 \u3072\u3068\u306E \u304B\u3061\u3002\u30C9\u30C3\u30C8\u3092 \u305F\u3079\u3066\u3001\u304A\u304A\u304D\u3044 \u307E\u308B\u3092 \u305F\u3079\u308B\u3068 \u304A\u3070\u3051\u304C \u3042\u304A\u304F\u306A\u308B\u3088\u3002\u3042\u304A\u3044 \u304A\u3070\u3051\u306F \u3060\u308C\u3067\u3082 \u305F\u3079\u3089\u308C\u3066 +10\u3066\u3093\u3002\u3078\u3093\u3057\u3093\u3061\u3085\u3046\u306F \u3068\u3082\u3060\u3061\u306B \u3055\u308F\u308B\u3068 \u3066\u3093\u3092 \u3046\u3070\u3048\u308B\u3088\u3002\u3075\u3064\u3046\u306E \u304A\u3070\u3051\u306B \u3055\u308F\u3089\u308C\u308B\u3068 5\u3066\u3093 \u3078\u3063\u3066 \u3061\u3087\u3063\u3068\u304A\u3084\u3059\u307F\u3002\u30C9\u30C3\u30C8\u3092 \u305C\u3093\u3076 \u305F\u3079\u308B\u3068 \u3064\u304E\u306E \u3081\u3044\u308D\u3078!\u30D5\u30EB\u30FC\u30C4\u306F +20\u3066\u3093\u3002"];
   let myD = 0, dTimer = 0, lastPd = 0, startTimer = 0, muted = store.get("mdt_mute") === "1", noteTimer = 0;
   function note(msg) {
     const n = $("note");
@@ -415,7 +413,6 @@ ol{list-style:none;margin:10px 0;padding:0}
     }
     return d;
   }
-  let DISTMAP = null;
   function getDist() {
     if (DISTMAP) return DISTMAP;
     const D = new Int16Array(NT).fill(9999);
@@ -437,7 +434,7 @@ ol{list-style:none;margin:10px 0;padding:0}
   }
   function newSim(idl, seed, sp, mode) {
     sp = clampInt(sp, 0, 2, 0);
-    const s = { sp, mode: clampInt(mode, 0, 1, 0), pv: SPEEDS[sp][0], gv: SPEEDS[sp][1], ids: idl.slice(), rng: mkRng(seed), T: clampInt(mode, 0, 1, 0) === 0 ? 0 : 90, count: 3, k: 0, eid: 0, evs: [], pel: [], P: [], G: [], dots: freshDots(), over: false, emitAcc: 0, dotsLeft: DOTCOUNT, stalled: false, fr: null, fcd: 30, lastEff: null, stage: 1, multi: idl.filter(Boolean).length >= 2 };
+    const s = { sp, mode: clampInt(mode, 0, 1, 0), pv: SPEEDS[sp][0], gv: SPEEDS[sp][1], ids: idl.slice(), rng: mkRng(seed), T: clampInt(mode, 0, 1, 0) === 0 ? 0 : 90, count: 3, k: 0, eid: 0, evs: [], pel: [], P: [], G: [], dots: freshDots(), over: false, emitAcc: 0, dotsLeft: DOTCOUNT, stalled: false, fr: null, fcd: 30, lastEff: null, stage: 1, maze: curMaze, multi: idl.filter(Boolean).length >= 2 };
     for (let i = 0; i < 4; i++) {
       const act = !!idl[i];
       s.P.push({ act, left: !act, x: STARTS[i][0], y: STARTS[i][1], d: 0, want: 0, sc: 0, power: 0, rest: 0, inv: 0, lives: 3, dying: 0, out: false, bn: 0, outT: null });
@@ -582,6 +579,38 @@ ol{list-style:none;margin:10px 0;padding:0}
     if (i === mySlot) return myD;
     const v = peerInput.get(sim.ids[i]);
     return v ? v : 0;
+  }
+  function nextStage(s) {
+    s.stage++;
+    s.maze = (s.maze + 1) % 4;
+    setMaze(s.maze);
+    s.dots = freshDots();
+    s.dotsLeft = DOTCOUNT;
+    s.pel = [];
+    s.fr = null;
+    s.fcd = 30;
+    for (let i = 0; i < 4; i++) {
+      const p = s.P[i];
+      if (!p.act || p.left || p.out || p.dying > 0) continue;
+      p.x = STARTS[i][0];
+      p.y = STARTS[i][1];
+      p.d = 0;
+      p.want = 0;
+      p.bn = 0;
+      p.rest = 0;
+      p.inv = 2;
+    }
+    s.G.forEach((g, i) => {
+      if (g.off) return;
+      const q = i < 2 ? GSTART[i] : [9, 9];
+      g.x = q[0];
+      g.y = q[1];
+      g.d = 0;
+      g.m = 0;
+      g.fr = 0;
+      g.h = 2;
+    });
+    evPush(s, 9, s.maze + 1, 0, 0);
   }
   function liveP(p) {
     return p.act && !p.left && !p.out && !(p.dying > 0) && !(p.rest > 0);
@@ -760,18 +789,12 @@ ol{list-style:none;margin:10px 0;padding:0}
         s.pel.splice(k, 1);
       }
     }
+    if (s.dotsLeft <= 0) nextStage(s);
     if (s.mode === 0) {
-      if (s.dotsLeft <= 0) {
-        s.stage++;
-        s.dots = freshDots();
-        s.dotsLeft = DOTCOUNT;
-        s.pel = [];
-        evPush(s, 9, Math.min(s.stage, W), 0, 0);
-      }
       const alive = s.P.filter((p) => p.act && !p.left && p.lives > 0).length;
       const dy = s.P.some((p) => p.act && p.dying > 0);
       if (!dy && alive <= (s.multi ? 1 : 0)) finishGame(s);
-    } else if (s.dotsLeft <= 0 || s.T <= 0) {
+    } else if (s.T <= 0) {
       s.T = Math.max(0, s.T);
       finishGame(s);
     }
@@ -805,7 +828,8 @@ ol{list-style:none;margin:10px 0;padding:0}
       G: s.G.map((g) => [q16(g.x), q16(g.y), g.d, ghostCode(g)]),
       D: dotsToHex(s.dots),
       E,
-      F: s.fr ? s.fr.type + 1 : 0
+      F: s.fr ? s.fr.type + 1 : 0,
+      L: s.maze
     };
     if (s.k % 10 === 1) {
       st.I = s.ids;
@@ -1016,7 +1040,7 @@ ol{list-style:none;margin:10px 0;padding:0}
         else if (ls[id].t !== p.t) ls[id] = { t: p.t, at: now };
         if (!me && now - ls[id].at > 6e3) continue;
         if (typeof p.n !== "string") continue;
-        const pr = { n: p.n, c: p.c, d: p.d, s: p.s, j: p.j, sp: p.sp, md: p.md, v: 1 };
+        const pr = { n: p.n, c: p.c, d: p.d, s: p.s, j: p.j, sp: p.sp, md: p.md, stg: p.stg, v: 1 };
         const e = { peer: id, by: null, isMe: me, sameTab: me, kind: "viewer", guest: false, presence: pr, updatedAt: Date.now() };
         list.push(e);
         sig[id] = JSON.stringify(pr);
@@ -1188,7 +1212,7 @@ ol{list-style:none;margin:10px 0;padding:0}
     unsubs = [r.on("start", onStart), r.on("state", onStateMsg), r.on("end", onEnd), r.on("lobby", onLobbyMsg), r.onPeers(onPeers)];
     myJoin = Date.now();
     lastPd = 0;
-    setPresence({ n: myName, c: myColor, d: 0, s: 0, j: myJoin, v: 1, sp: mySp, md: myMode });
+    setPresence({ n: myName, c: myColor, d: 0, s: 0, j: myJoin, v: 1, sp: mySp, md: myMode, stg: myStage });
     goLobby();
   }
   function leaveRoom() {
@@ -1232,7 +1256,7 @@ ol{list-style:none;margin:10px 0;padding:0}
         if (p.kind !== "viewer") continue;
         const pr = p.presence;
         if (!pr || pr.v !== 1) continue;
-        out.push({ peer: p.peer, me: !!p.sameTab, n: cleanName(pr.n), c: clampInt(pr.c, 0, 4, 0), d: clampInt(pr.d, 0, 4, 0), s: num(pr.s), sp: clampInt(pr.sp, 0, 2, 0), md: clampInt(pr.md, 0, 1, 0), j: num(pr.j) || 9e15 });
+        out.push({ peer: p.peer, me: !!p.sameTab, n: cleanName(pr.n), c: clampInt(pr.c, 0, 4, 0), d: clampInt(pr.d, 0, 4, 0), s: num(pr.s), sp: clampInt(pr.sp, 0, 2, 0), md: clampInt(pr.md, 0, 1, 0), stg: clampInt(pr.stg, 0, 3, 0), j: num(pr.j) || 9e15 });
       }
     }
     out.sort((a, b) => a.j - b.j || (a.peer < b.peer ? -1 : a.peer > b.peer ? 1 : 0));
@@ -1302,7 +1326,7 @@ ol{list-style:none;margin:10px 0;padding:0}
       used[c] = 1;
       cols[k] = c;
     });
-    send("start", { seed: Math.floor(Math.random() * 2147483647), t0: Date.now(), ids: slots, sp: mySp, mode: myMode, cols });
+    send("start", { seed: Math.floor(Math.random() * 2147483647), t0: Date.now(), ids: slots, sp: mySp, mode: myMode, cols, st: myStage });
   }
   function validIds(a) {
     if (!Array.isArray(a) || a.length !== 4) return false;
@@ -1322,7 +1346,7 @@ ol{list-style:none;margin:10px 0;padding:0}
     if (!d || typeof d !== "object" || !validIds(d.ids)) return;
     clearTimeout(startTimer);
     startTimer = 0;
-    startGame(d.ids.slice(), clampInt(d.seed, 0, 2147483647, 1), m.peer, { host: !!m.sameTab, sp: clampInt(d.sp, 0, 2, 0), mode: clampInt(d.mode, 0, 1, 0), cols: d.cols });
+    startGame(d.ids.slice(), clampInt(d.seed, 0, 2147483647, 1), m.peer, { host: !!m.sameTab, sp: clampInt(d.sp, 0, 2, 0), mode: clampInt(d.mode, 0, 1, 0), cols: d.cols, st: clampInt(d.st, 0, 3, 0) });
   }
   function parseState(d) {
     if (!d || typeof d !== "object") return null;
@@ -1347,7 +1371,7 @@ ol{list-style:none;margin:10px 0;padding:0}
     if (Array.isArray(d.E)) for (const e of d.E.slice(0, 8)) {
       if (Array.isArray(e) && e.length === 5) E.push([clampInt(e[0], 0, 1e9, 0), clampInt(e[1], 0, 10, 0), clampInt(e[2], 0, W, 0), clampInt(e[3], 0, H, 0), clampInt(e[4], 0, 3, 0)]);
     }
-    return { k, T, P, G, dots: hexToDots(d.D), E, I: d.I, S: clampInt(d.S, 0, 2, 0), M: clampInt(d.M, 0, 1, 0), Cl: d.Cl, F: clampInt(d.F, 0, 3, 0) };
+    return { k, T, P, G, dots: hexToDots(d.D), E, I: d.I, S: clampInt(d.S, 0, 2, 0), M: clampInt(d.M, 0, 1, 0), Cl: d.Cl, F: clampInt(d.F, 0, 3, 0), L: clampInt(d.L, 0, 3, 0) };
   }
   function onStateMsg(m) {
     if (isHost) {
@@ -1362,7 +1386,7 @@ ol{list-style:none;margin:10px 0;padding:0}
     const now = performance.now();
     if (phase === "lobby" || phase === "result") {
       if (phase === "lobby" && now - lobbySince > 2500 && validIds(st.I) && online) {
-        startGame(st.I.slice(), 1, m.peer, { late: true, sp: st.S, mode: st.M, cols: st.Cl });
+        startGame(st.I.slice(), 1, m.peer, { late: true, sp: st.S, mode: st.M, cols: st.Cl, st: st.L });
       } else return;
     }
     if (phase !== "game" || solo) return;
@@ -1374,7 +1398,7 @@ ol{list-style:none;margin:10px 0;padding:0}
     if (st.k <= lastK) return;
     lastK = st.k;
     lastStateAt = now;
-    const sn = { t: now, k: st.k, T: st.T, P: st.P, G: st.G, dots: st.dots, fr: st.F };
+    const sn = { t: now, k: st.k, T: st.T, P: st.P, G: st.G, dots: st.dots, fr: st.F, L: st.L };
     snaps.push(sn);
     if (snaps.length > 6) snaps.shift();
     lastSnap = sn;
@@ -1413,6 +1437,7 @@ ol{list-style:none;margin:10px 0;padding:0}
       return;
     }
     const old = ids.indexOf(hostPeer);
+    setMaze(sn.L || 0);
     sim = newSim(ids, Date.now() & 2147483647, gameSp, gameMode);
     sim.count = 0;
     sim.T = sn.T;
@@ -1521,6 +1546,52 @@ ol{list-style:none;margin:10px 0;padding:0}
     const h = hostMember();
     return r && h && !h.me ? h.sp : mySp;
   }
+  function shownStage() {
+    const h = hostMember();
+    return r && h && !h.me ? h.stg : myStage;
+  }
+  function buildStage() {
+    const box = $("stage");
+    box.textContent = "";
+    for (let i = 0; i < 4; i++) {
+      const b = document.createElement("button");
+      b.textContent = String(i + 1);
+      b.dataset.sg = i;
+      b.addEventListener("click", () => {
+        if (b.disabled) return;
+        myStage = i;
+        store.set("mdt_stage", String(i));
+        audio();
+        if (online) setPresence({ stg: i });
+        refreshLobby();
+      });
+      box.appendChild(b);
+    }
+  }
+  function applyTheme() {
+    const el = document.documentElement;
+    if (myTheme === 1) el.setAttribute("data-theme", "light");
+    else if (myTheme === 2) el.setAttribute("data-theme", "dark");
+    else el.removeAttribute("data-theme");
+    readColors();
+  }
+  function buildTheme() {
+    const box = $("theme");
+    box.textContent = "";
+    THN.forEach((t, i) => {
+      const b = document.createElement("button");
+      b.textContent = t;
+      b.dataset.th = i;
+      b.addEventListener("click", () => {
+        myTheme = i;
+        store.set("mdt_theme", String(i));
+        applyTheme();
+        audio();
+        refreshLobby();
+      });
+      box.appendChild(b);
+    });
+  }
   function shownMode() {
     const h = hostMember();
     return r && h && !h.me ? h.md : myMode;
@@ -1586,6 +1657,13 @@ ol{list-style:none;margin:10px 0;padding:0}
       });
       document.querySelectorAll("#padsz button").forEach((b2) => {
         b2.setAttribute("aria-pressed", String(Number(b2.dataset.pz) === myPad));
+      });
+      document.querySelectorAll("#stage button").forEach((b2) => {
+        b2.disabled = lock;
+        b2.setAttribute("aria-pressed", String(Number(b2.dataset.sg) === shownStage()));
+      });
+      document.querySelectorAll("#theme button").forEach((b2) => {
+        b2.setAttribute("aria-pressed", String(Number(b2.dataset.th) === myTheme));
       });
       const md = shownMode();
       document.querySelectorAll("#mode button").forEach((b2) => {
@@ -1704,7 +1782,9 @@ ol{list-style:none;margin:10px 0;padding:0}
     store.set("mdt_sp", String(mySp));
     myMode = shownMode();
     store.set("mdt_mode", String(myMode));
-    setPresence({ s: Date.now(), sp: mySp, md: myMode });
+    myStage = shownStage();
+    store.set("mdt_stage", String(myStage));
+    setPresence({ s: Date.now(), sp: mySp, md: myMode, stg: myStage });
   });
   $("btnAgain").addEventListener("click", () => {
     audio();
@@ -1725,7 +1805,7 @@ ol{list-style:none;margin:10px 0;padding:0}
   function startSolo() {
     const idl = ["me", "", "", ""];
     myPeer = "me";
-    startGame(idl, Math.floor(Math.random() * 2147483647), "me", { host: true, solo: true, sp: mySp, mode: myMode, cols: [myColor, (myColor + 1) % 5, (myColor + 2) % 5, (myColor + 3) % 5] });
+    startGame(idl, Math.floor(Math.random() * 2147483647), "me", { host: true, solo: true, sp: mySp, mode: myMode, st: myStage, cols: [myColor, (myColor + 1) % 5, (myColor + 2) % 5, (myColor + 3) % 5] });
   }
   function validCols(a) {
     if (!Array.isArray(a) || a.length !== 4) return false;
@@ -1763,6 +1843,7 @@ ol{list-style:none;margin:10px 0;padding:0}
     lastPd = 0;
     gameSp = clampInt(opt.sp, 0, 2, 0);
     gameMode = clampInt(opt.mode, 0, 1, 0);
+    setMaze(clampInt(opt.st, 0, 3, 0));
     slotCol = validCols(opt.cols) ? opt.cols.slice() : [0, 1, 2, 3];
     pops = [];
     dyAt = [0, 0, 0, 0];
@@ -2069,8 +2150,8 @@ ol{list-style:none;margin:10px 0;padding:0}
     m.scale(dpr, dpr);
     m.fillStyle = C.maze;
     m.fillRect(0, 0, W * T, H * T);
-    blobs(m, T, T * 0.08, C.wall);
-    blobs(m, T, T * 0.3, C.wallIn);
+    blobs(m, T, T * 0.08, C.walls[curMaze]);
+    blobs(m, T, T * 0.3, C.wallsIn[curMaze]);
     mazeDirty = false;
   }
   function starPath(c, x, y, r2) {
@@ -2320,7 +2401,7 @@ ol{list-style:none;margin:10px 0;padding:0}
     return Math.abs(b - a) > 2 ? b : a + (b - a) * u;
   }
   function snapView(a) {
-    return { T: a.T, P: a.P, G: a.G, dots: a.dots, fr: a.fr };
+    return { T: a.T, P: a.P, G: a.G, dots: a.dots, fr: a.fr, L: a.L };
   }
   function clientView(now) {
     const sn = snaps;
@@ -2338,6 +2419,7 @@ ol{list-style:none;margin:10px 0;padding:0}
       T: b.T,
       dots: b.dots,
       fr: b.fr,
+      L: b.L,
       P: b.P.map((p, i) => ({ x: lerp(a.P[i].x, p.x, u), y: lerp(a.P[i].y, p.y, u), d: p.d, f: p.f, sc: p.sc, lv: p.lv })),
       G: b.G.map((g, i) => ({ x: lerp(a.G[i].x, g.x, u), y: lerp(a.G[i].y, g.y, u), d: g.d, m: g.m }))
     };
@@ -2348,6 +2430,7 @@ ol{list-style:none;margin:10px 0;padding:0}
       T: s.T,
       dots: s.dots,
       fr: s.fr ? s.fr.type + 1 : 0,
+      L: s.maze,
       P: s.P.map((p) => ({ x: p.x, y: p.y, d: p.d, f: flagsOf(p), sc: p.sc, lv: p.lives })),
       G: s.G.map((g) => ({ x: g.x, y: g.y, d: g.d, m: ghostCode(g) }))
     };
@@ -2407,6 +2490,8 @@ ol{list-style:none;margin:10px 0;padding:0}
     if (padDirty) drawPad();
     if (mazeDirty || !mazeCv) buildMaze();
     const v = isHost && sim ? hostView() : clientView(now);
+    if (v && v.L !== void 0 && v.L !== curMaze) setMaze(v.L);
+    if (mazeDirty) buildMaze();
     const T = tile;
     cx.setTransform(dpr, 0, 0, dpr, 0, 0);
     cx.drawImage(mazeCv, 0, 0, W * T, H * T);
@@ -2540,6 +2625,16 @@ ol{list-style:none;margin:10px 0;padding:0}
         cx.fillStyle = "#fff";
         cx.strokeText(msg, W * T / 2, T * 13.2);
         cx.fillText(msg, W * T / 2, T * 13.2);
+        cx.restore();
+      }
+    }
+    {
+      const fa = (now - fadeAt) / 800;
+      if (fa < 1) {
+        cx.save();
+        cx.globalAlpha = 1 - fa;
+        cx.fillStyle = C.maze;
+        cx.fillRect(0, 0, W * T, H * T);
         cx.restore();
       }
     }
@@ -2678,7 +2773,10 @@ ol{list-style:none;margin:10px 0;padding:0}
   buildColors();
   buildSpd();
   buildMode();
+  buildStage();
+  buildTheme();
   buildPadSz();
+  applyTheme();
   $("btnHow").addEventListener("click", () => {
     $("howBox").hidden = !$("howBox").hidden;
     layout();
