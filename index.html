@@ -184,6 +184,7 @@ ol{list-style:none;margin:10px 0;padding:0}
 <script>
 (() => {
   "use strict";
+  const BIG_SCALE = 3;
   const MAZE = [
     "###################",
     "#o.......#.......o#",
@@ -284,7 +285,7 @@ ol{list-style:none;margin:10px 0;padding:0}
   let sim = null, simTimer = 0, simLast = 0;
   let snaps = [], lastSnap = null, lastK = -1, seenEid = 0, lastStateAt = 0, gameStartAt = 0, cdEnd = 0, lastCd = 9, lobbySince = 0;
   let mySp = clampInt(store.get("mdt_sp"), 0, 2, 0), gameSp = 0;
-  let myMode = clampInt(store.get("mdt_mode"), 0, 1, 0), gameMode = 0, slotCol = [0, 1, 2, 3], pops = [], dyAt = [0, 0, 0, 0];
+  let myMode = clampInt(store.get("mdt_mode"), 0, 1, 0), gameMode = 0, slotCol = [0, 1, 2, 3], pops = [], dyAt = [0, 0, 0, 0], bigS = [0, 1, 2, 3].map(() => ({ on: false, t0: 0, off0: 0, from: 1, last: 1 }));
   const MODES = ["\u3076\u3064\u304B\u308B", "\u3068\u308A\u3042\u3046"];
   const PADN = ["\u3075\u3064\u3046", "\u304A\u304A\u304D\u3044", "\u3068\u304F\u3060\u3044"], PADF = [0.271, 0.38, 0.488];
   let myPad = clampInt(store.get("mdt_pad"), 0, 2, 1);
@@ -694,13 +695,16 @@ ol{list-style:none;margin:10px 0;padding:0}
       if (!liveP(p)) continue;
       for (const g of s.G) {
         if (g.m === 1 || g.off) continue;
-        if ((p.x - g.x) ** 2 + (p.y - g.y) ** 2 < 0.7) {
-          if (g.fr > 0) {
+        const d2 = (p.x - g.x) ** 2 + (p.y - g.y) ** 2;
+        if (g.fr > 0) {
+          if (d2 < (p.power > 0 ? 2 : 0.7)) {
             p.sc += 10;
             g.m = 1;
             g.fr = 0;
             evPush(s, 2, p.x, p.y, i);
-          } else if (p.inv <= 0) {
+          }
+        } else if (d2 < 0.7) {
+          if (p.inv <= 0) {
             if (s.mode === 0) {
               p.lives--;
               if (p.lives <= 0) p.outT = s.T;
@@ -1762,6 +1766,7 @@ ol{list-style:none;margin:10px 0;padding:0}
     slotCol = validCols(opt.cols) ? opt.cols.slice() : [0, 1, 2, 3];
     pops = [];
     dyAt = [0, 0, 0, 0];
+    bigS = [0, 1, 2, 3].map(() => ({ on: false, t0: 0, off0: 0, from: 1, last: 1 }));
     if (isHost) {
       sim = newSim(ids, seed, gameSp, gameMode);
       startSimLoop();
@@ -2077,6 +2082,31 @@ ol{list-style:none;margin:10px 0;padding:0}
     c.closePath();
   }
   const ANG = [0, -Math.PI / 2, 0, Math.PI / 2, Math.PI];
+  function bigScale(i, pow, now) {
+    const b = bigS[i];
+    if (pow) {
+      if (!b.on) {
+        b.on = true;
+        b.t0 = now;
+      }
+      const el = (now - b.t0) / 1e3;
+      let f = 1;
+      if (el < 0.4) {
+        const u = el / 0.4 - 1;
+        f = 1 + 2.70158 * u * u * u + 1.70158 * u * u;
+      } else if (el > 7) f = 0.5 + 0.5 * Math.cos((el - 7) * 14);
+      b.last = 1 + (BIG_SCALE - 1) * f;
+    } else {
+      if (b.on) {
+        b.on = false;
+        b.off0 = now;
+        b.from = b.last;
+      }
+      const u = (now - b.off0) / 400;
+      b.last = u >= 1 ? 1 : 1 + (b.from - 1) * (1 - u);
+    }
+    return b.last;
+  }
   function drawChar(c, px, py, R, color, d, mouth, o) {
     c.save();
     let alpha = 1;
@@ -2092,7 +2122,7 @@ ol{list-style:none;margin:10px 0;padding:0}
     const ang = ANG[d];
     c.fillStyle = col;
     c.strokeStyle = C.outline;
-    c.lineWidth = Math.max(1.5, R * 0.14);
+    c.lineWidth = Math.max(1.5, R * 0.14) * (o.thick || 1);
     c.lineJoin = "round";
     c.beginPath();
     if (o.scared || d === 0 && false) {
@@ -2428,10 +2458,13 @@ ol{list-style:none;margin:10px 0;padding:0}
     }
     const order = [0, 1, 2, 3].filter((i) => i !== mySlot);
     if (mySlot >= 0) order.push(mySlot);
+    const bigList = [];
     for (const i of order) {
       const p = v.P[i];
       if (!ids[i] || p.f & 8 || p.f & 32) continue;
       if (p.f & 16) {
+        bigS[i].on = false;
+        bigS[i].last = 1;
         if (!dyAt[i]) dyAt[i] = now;
         const k = Math.max(0.02, 1 - (now - dyAt[i]) / 1e3);
         drawChar(cx, (p.x + 0.5) * T, (p.y + 0.5) * T, R * k, C.p[slotCol[i]], 1, Math.min(3, (1 - k) * 3.1), { t: now });
@@ -2440,16 +2473,29 @@ ol{list-style:none;margin:10px 0;padding:0}
       dyAt[i] = 0;
       const moving = p.d !== 0;
       const mouth = moving ? 0.05 + 0.42 * (0.5 + 0.5 * Math.sin(now / 55 + i)) : 0.4;
-      drawChar(
-        cx,
-        (p.x + 0.5) * T,
-        (p.y + 0.5) * T,
-        R,
-        C.p[slotCol[i]],
-        p.d || 2,
-        mouth,
-        { t: now, power: !!(p.f & 1), rest: !!(p.f & 2), inv: !!(p.f & 4), scared: !(p.f & 1) && !(p.f & 2) && near(p.x, p.y, p), me: i === mySlot }
-      );
+      const sc = bigScale(i, !!(p.f & 1), now);
+      const o = { t: now, power: !!(p.f & 1), rest: !!(p.f & 2), inv: !!(p.f & 4), scared: !(p.f & 1) && !(p.f & 2) && near(p.x, p.y, p), me: i === mySlot };
+      if (sc > 1.02) {
+        bigList.push({ p, i, sc, mouth, o });
+        continue;
+      }
+      drawChar(cx, (p.x + 0.5) * T, (p.y + 0.5) * T, R, C.p[slotCol[i]], p.d || 2, mouth, o);
+    }
+    for (const b of bigList) {
+      const px = (b.p.x + 0.5) * T, py = (b.p.y + 0.5) * T, col = C.p[slotCol[b.i]];
+      cx.save();
+      cx.globalAlpha = 0.22;
+      cx.fillStyle = col;
+      cx.beginPath();
+      cx.arc(px, py, R * b.sc * 1.3, 0, Math.PI * 2);
+      cx.fill();
+      cx.globalAlpha = 0.18;
+      cx.beginPath();
+      cx.arc(px, py, R * b.sc * 1.6, 0, Math.PI * 2);
+      cx.fill();
+      cx.restore();
+      b.o.thick = 1.6;
+      drawChar(cx, px, py, R * b.sc, col, b.p.d || 2, b.mouth, b.o);
     }
     for (let k = pops.length - 1; k >= 0; k--) {
       const o = pops[k], age = now - o.t0;
