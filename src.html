@@ -8,7 +8,7 @@
 <style>
 :root{
   --bg:#fff2cf; --card:#ffffff; --text:#3a2e5f; --sub:#7a6da6;
-  --maze:#eef7ff; --wall:#5a6cf5; --wall-in:#cfd7ff;
+  --maze:#eef7ff; --wall:#5a6cf5; --wall-in:#cfd7ff; --wall2:#33a866; --wall-in2:#cdeed9; --wall3:#ee8420; --wall-in3:#ffe1bf; --wall4:#e0489a; --wall-in4:#ffd0e8;
   --dot:#ff8a00; --pellet:#ff4f9a;
   --p0:#ffc928; --p1:#2cc3f2; --p2:#ff6fae; --p3:#4cc94c; --p4:#ff8a2a; --pad-hi:#a9b4ff;
   --ghost:#9a63e8; --ghost2:#a4a6bd; --fright:#3b63ff; --fright2:#ffffff; --fr-red:#ef3b4a; --fr-green:#3fae4a; --fr-yel:#ffd23f; --fr-pur:#8e4bd6;
@@ -19,7 +19,7 @@
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
     --bg:#0f1635; --card:#1b2556; --text:#f3f0ff; --sub:#b4b0e6;
-    --maze:#0a1030; --wall:#8f8bff; --wall-in:#1a2166;
+    --maze:#0a1030; --wall:#8f8bff; --wall-in:#1a2166; --wall2:#5fe0a0; --wall-in2:#123a2a; --wall3:#ffa84d; --wall-in3:#3d2610; --wall4:#ff7fc0; --wall-in4:#3d1530;
     --dot:#ffe27a; --pellet:#ff8ac6;
     --p0:#ffd84d; --p1:#4fd6ff; --p2:#ff8cc2; --p3:#6be36b; --p4:#ff9a45; --pad-hi:#c4ccff;
     --ghost:#b48cff; --ghost2:#8d93b8; --fright:#4f7dff; --fright2:#ffffff; --fr-red:#ff5a66; --fr-green:#58cc62; --fr-yel:#ffe06a; --fr-pur:#b07cf0;
@@ -30,7 +30,7 @@
 }
 :root[data-theme="dark"]{
   --bg:#0f1635; --card:#1b2556; --text:#f3f0ff; --sub:#b4b0e6;
-  --maze:#0a1030; --wall:#8f8bff; --wall-in:#1a2166;
+  --maze:#0a1030; --wall:#8f8bff; --wall-in:#1a2166; --wall2:#5fe0a0; --wall-in2:#123a2a; --wall3:#ffa84d; --wall-in3:#3d2610; --wall4:#ff7fc0; --wall-in4:#3d1530;
   --dot:#ffe27a; --pellet:#ff8ac6;
   --p0:#ffd84d; --p1:#4fd6ff; --p2:#ff8cc2; --p3:#6be36b; --p4:#ff9a45; --pad-hi:#c4ccff;
   --ghost:#b48cff; --ghost2:#8d93b8; --fright:#4f7dff; --fright2:#ffffff; --fr-red:#ff5a66; --fr-green:#58cc62; --fr-yel:#ffe06a; --fr-pur:#b07cf0;
@@ -67,9 +67,13 @@ input:focus{outline:3px solid var(--focus);outline-offset:1px}
 .btn.b3{background:var(--btn3);color:var(--btn3-text)}
 .btn:disabled{background:var(--disabled);color:var(--sub);box-shadow:none}
 .btn:focus-visible,.cbtn:focus-visible,#mute:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+.srow{display:flex;align-items:center;margin:5px 0}
+.slbl{width:62px;flex:none;font-size:12px;font-weight:800;color:var(--sub)}
+.srow .spd,.srow .colors{flex:1;margin:0;min-width:0}
+.srow .colors{justify-content:flex-start}
 .spd{display:flex;margin:6px 0 2px}
 .spd button+button{margin-left:8px}
-.spd button{flex:1;min-height:48px;border:3px solid var(--btn3);border-radius:16px;background:var(--btn3);color:var(--btn3-text);font-size:16px;font-weight:800;font-family:inherit;touch-action:manipulation}
+.spd button{flex:1;min-width:0;min-height:40px;border:3px solid var(--btn3);border-radius:14px;background:var(--btn3);color:var(--btn3-text);font-size:14px;font-weight:800;font-family:inherit;touch-action:manipulation}
 .spd button[aria-pressed="true"]{background:var(--btn2);border-color:var(--text);color:#fff}
 .spd button:disabled{opacity:.75}
 .spd button:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
@@ -78,8 +82,8 @@ input:focus{outline:3px solid var(--focus);outline-offset:1px}
 .joinrow input{width:110px;flex:none;letter-spacing:4px;text-transform:uppercase}
 .joinrow .btn{margin:8px 0}
 .colors{display:flex;justify-content:center;margin:6px 0 2px}
-.cbtn+.cbtn{margin-left:8px}
-.cbtn{width:48px;height:48px;border-radius:50%;border:4px solid var(--btn3);padding:0;position:relative;touch-action:manipulation}
+.cbtn+.cbtn{margin-left:6px}
+.cbtn{width:40px;height:40px;border-radius:50%;border:4px solid var(--btn3);padding:0;position:relative;touch-action:manipulation}
 .cbtn[aria-pressed="true"]{border-color:var(--text);transform:scale(1.08)}
 .cbtn:disabled{background:var(--disabled)!important;opacity:.55}
 .code{font-size:38px;font-weight:900;letter-spacing:8px;text-align:center;color:var(--btn2)}
@@ -130,15 +134,13 @@ ol{list-style:none;margin:10px 0;padding:0}
     <div class="card">
       <label class="lbl" for="name">なまえ(6もじまで)</label>
       <input id="name" maxlength="6" autocomplete="off" placeholder="なまえ">
-      <div class="lbl">いろをえらぼう</div>
-      <div id="colors" class="colors"></div>
-      <div class="lbl">ボタンのおおきさ</div>
-      <div id="padsz" class="spd"></div>
-      <div class="lbl">スピード</div>
-      <div id="spd" class="spd"></div>
-      <div class="lbl">モード</div>
-      <div id="mode" class="spd"></div>
-      <div id="spdNote" class="small" style="text-align:center" hidden>スピードとモードはホストがきめるよ</div>
+      <div class="srow"><div class="slbl">キャラ</div><div id="colors" class="colors"></div></div>
+      <div class="srow"><div class="slbl">スピード</div><div id="spd" class="spd"></div></div>
+      <div class="srow"><div class="slbl">モード</div><div id="mode" class="spd"></div></div>
+      <div class="srow"><div class="slbl">ステージ</div><div id="stage" class="spd"></div></div>
+      <div class="srow"><div class="slbl">ボタン</div><div id="padsz" class="spd"></div></div>
+      <div class="srow"><div class="slbl">いろ</div><div id="theme" class="spd"></div></div>
+      <div id="spdNote" class="small" style="text-align:center" hidden>スピード・モード・ステージはホストがきめるよ</div>
       <button id="btnHow" type="button">あそびかた</button>
       <div id="howBox" hidden></div>
     </div>
@@ -184,37 +186,26 @@ ol{list-style:none;margin:10px 0;padding:0}
 <script>
 (()=>{
 'use strict';
+const BIG_SCALE = 3;
 /* ===== 迷路 (19x21) ===== */
-const MAZE=[
-"###################",
-"#o.......#.......o#",
-"#.###.##.#.##.###.#",
-"#1...............2#",
-"#.###.#.###.#.###.#",
-"#.....#.....#.....#",
-"#####.###.###.#####",
-"#####.#.....#.#####",
-"#####.#.###.#.#####",
-"     ...#G#...     ",
-"#####.#..G..#.#####",
-"#####.#.###.#.#####",
-"#####.#.....#.#####",
-"#####.###.###.#####",
-"#.....#.....#.....#",
-"#.###.#.###.#.###.#",
-"#o..#.........#..o#",
-"#.#.#.###.###.#.#.#",
-"#.#.....#.#.....#.#",
-"#3...............4#",
-"###################"];
+const MAZES=[
+["###################","#o.......#.......o#","#.###.##.#.##.###.#","#1...............2#","#.###.#.###.#.###.#","#.....#.....#.....#","#####.###.###.#####","#####.#.....#.#####","#####.#.###.#.#####","     ...#G#...     ","#####.#..G..#.#####","#####.#.###.#.#####","#####.#.....#.#####","#####.###.###.#####","#.....#.....#.....#","#.###.#.###.#.###.#","#o..#.........#..o#","#.#.#.###.###.#.#.#","#.#.....#.#.....#.#","#3...............4#","###################"],
+["###################","#o...............o#","#.###.##...##.###.#","#1...............2#","#.###.#.#.#.#.###.#","#.....#.....#.....#","#####.###.###.#####","#####.#.....#.#####","#####.#.###.#.#####","     ...#G#...     ","#####.#..G..#.#####","#####.#.###.#.#####","#####.#.....#.#####","#####.###.###.#####","#...#.........#...#","#.#.#.###.###.#.#.#","#o#.............#o#","#.#.#.###.###.#.#.#","#.................#","#3...............4#","###################"],
+["###################","#o...............o#","#.###############.#","#1...............2#","#.###.#######.###.#","#.................#","#####.###.###.#####","#####.#.....#.#####","#####.#.###.#.#####","     ...#G#...     ","#####.#..G..#.#####","#####.#.###.#.#####","#####.#.....#.#####","#####.###.###.#####","#.................#","#.###############.#","#o...............o#","#.###############.#","#.###############.#","#3...............4#","###################"],
+["###################","#o...............o#","#.###.#######.###.#","#1...............2#","#.#######.#######.#","#.................#","#####.###.###.#####","#####.#.....#.#####","#####.#.###.#.#####","     ...#G#...     ","#####.#..G..#.#####","#####.#.###.#.#####","#####.#.....#.#####","#####.###.###.#####","#.................#","#.#######.#######.#","#o...............o#","#.###.#######.###.#","#.###.#######.###.#","#3...............4#","###################"]];
+let MAZE=MAZES[0],curMaze=0,fadeAt=0;
 const W=19,H=21,NT=W*H;
 const DX=[0,0,1,0,-1],DY=[0,-1,0,1,0],OPP=[0,3,4,1,2];
 const STARTS=[[1,3],[17,3],[1,19],[17,19]];
 const GSTART=[[9,9],[9,10]];
 const SPEEDS=[[3.5,2.8],[4.5,3.7],[6,5]],SPNAMES=['ゆっくり','ふつう','はやい'];
 const isWall=(x,y)=>MAZE[y][x]==='#';
-let DOTCOUNT=0;
-for(let y=0;y<H;y++)for(let x=0;x<W;x++)if(MAZE[y][x]==='.')DOTCOUNT++;
+let DOTCOUNT=0,DISTMAP=null,mazeDirty0=true;
+function setMaze(i){
+  curMaze=clampInt(i,0,3,0);MAZE=MAZES[curMaze];DISTMAP=null;DOTCOUNT=0;
+  for(let y=0;y<H;y++)for(let x=0;x<W;x++)if(MAZE[y][x]==='.')DOTCOUNT++;
+  mazeDirty=true;fadeAt=performance.now();
+}
 
 const $=id=>document.getElementById(id);
 const store={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
@@ -226,7 +217,7 @@ const cleanName=n=>{const s=Array.from(String(n==null?'':n).replace(/[\u0000-\u0
 let C={},mazeDirty=true,padDirty=true;
 function readColors(){
   const cs=getComputedStyle(document.documentElement),g=n=>cs.getPropertyValue(n).trim();
-  C={btn2:g('--btn2'),padHi:g('--pad-hi'),fright:g('--fright'),fright2:g('--fright2'),fr:[g('--fr-red'),g('--fr-green'),g('--fr-yel'),g('--fr-pur')],maze:g('--maze'),wall:g('--wall'),wallIn:g('--wall-in'),dot:g('--dot'),pellet:g('--pellet'),
+  C={walls:[g('--wall'),g('--wall2'),g('--wall3'),g('--wall4')],wallsIn:[g('--wall-in'),g('--wall-in2'),g('--wall-in3'),g('--wall-in4')],btn2:g('--btn2'),padHi:g('--pad-hi'),fright:g('--fright'),fright2:g('--fright2'),fr:[g('--fr-red'),g('--fr-green'),g('--fr-yel'),g('--fr-pur')],maze:g('--maze'),wall:g('--wall'),wallIn:g('--wall-in'),dot:g('--dot'),pellet:g('--pellet'),
      p:[g('--p0'),g('--p1'),g('--p2'),g('--p3'),g('--p4')],ghost:g('--ghost'),ghost2:g('--ghost2'),
      outline:g('--outline'),eye:g('--eye'),pupil:g('--pupil'),text:g('--text'),bg:g('--bg')};
   mazeDirty=true;padDirty=true;
@@ -243,11 +234,13 @@ let phase='lobby',solo=false,isHost=false,hostPeer='',ids=['','','',''],mySlot=-
 let sim=null,simTimer=0,simLast=0;
 let snaps=[],lastSnap=null,lastK=-1,seenEid=0,lastStateAt=0,gameStartAt=0,cdEnd=0,lastCd=9,lobbySince=0;
 let mySp=clampInt(store.get('mdt_sp'),0,2,0),gameSp=0;
-let myMode=clampInt(store.get('mdt_mode'),0,1,0),gameMode=0,slotCol=[0,1,2,3],pops=[],dyAt=[0,0,0,0];
+let myMode=clampInt(store.get('mdt_mode'),0,1,0),gameMode=0,slotCol=[0,1,2,3],pops=[],dyAt=[0,0,0,0],bigS=[0,1,2,3].map(()=>({on:false,t0:0,off0:0,from:1,last:1}));
 const MODES=['ぶつかる','とりあう'];
+let myStage=clampInt(store.get('mdt_stage'),0,3,0),myTheme=clampInt(store.get('mdt_theme'),0,2,0);
+const THN=['じどう','あかるい','よる'];
 const PADN=['ふつう','おおきい','とくだい'],PADF=[0.271,0.38,0.488];
-let myPad=clampInt(store.get('mdt_pad'),0,2,1);
-const HOW=['ドットを たべて てんを あつめよう。おおきい まるを たべると おばけが あおくなるよ。あおい おばけは だれでも たべられて +10てん。ふつうの おばけに さわられると ハートが へるよ。ハートが なくなったら みててね。さいごの ひとりに なるまで いきのころう! おばけは だんだん はやくなるよ。ともだちと ぶつかると ぽよんと はねかえるよ。フルーツは +20てん。','90びょうで てんが おおい ひとの かち。ドットを たべて、おおきい まるを たべると おばけが あおくなるよ。あおい おばけは だれでも たべられて +10てん。へんしんちゅうは ともだちに さわると てんを うばえるよ。ふつうの おばけに さわられると 5てん へって ちょっとおやすみ。フルーツは +20てん。'];
+let myPad=store.get('mdt_pad')===null?1:clampInt(store.get('mdt_pad'),0,2,1);
+const HOW=['ドットを たべて てんを あつめよう。おおきい まるを たべると おばけが あおくなるよ。あおい おばけは だれでも たべられて +10てん。ふつうの おばけに さわられると ハートが へるよ。ハートが なくなったら みててね。さいごの ひとりに なるまで いきのころう! おばけは だんだん はやくなるよ。ドットを ぜんぶ たべると つぎの めいろへ!ともだちと ぶつかると ぽよんと はねかえるよ。フルーツは +20てん。','90びょうで てんが おおい ひとの かち。ドットを たべて、おおきい まるを たべると おばけが あおくなるよ。あおい おばけは だれでも たべられて +10てん。へんしんちゅうは ともだちに さわると てんを うばえるよ。ふつうの おばけに さわられると 5てん へって ちょっとおやすみ。ドットを ぜんぶ たべると つぎの めいろへ!フルーツは +20てん。'];
 let myD=0,dTimer=0,lastPd=0,startTimer=0,muted=store.get('mdt_mute')==='1',noteTimer=0;
 
 function note(msg){const n=$('note');n.textContent=msg;clearTimeout(noteTimer);noteTimer=setTimeout(()=>{n.textContent=''},6000)}
@@ -318,7 +311,6 @@ function move(e,dist,ai,ghost){
 /* ===== ホストのシミュレーション ===== */
 function mkRng(seed){let a=seed>>>0;return()=>{a=(a+0x6D2B79F5)>>>0;let t=a;t=Math.imul(t^t>>>15,t|1);t^=t+Math.imul(t^t>>>7,t|61);return((t^t>>>14)>>>0)/4294967296}}
 function freshDots(){const d=new Uint8Array(NT);for(let y=0;y<H;y++)for(let x=0;x<W;x++){const c=MAZE[y][x];if(c==='.'||c==='o')d[y*W+x]=1}return d}
-let DISTMAP=null;
 function getDist(){
   if(DISTMAP)return DISTMAP;
   const D=new Int16Array(NT).fill(9999);D[9*W+9]=0;const q=[[9,9]];
@@ -334,7 +326,7 @@ function getDist(){
 }
 function newSim(idl,seed,sp,mode){
   sp=clampInt(sp,0,2,0);
-  const s={sp,mode:clampInt(mode,0,1,0),pv:SPEEDS[sp][0],gv:SPEEDS[sp][1],ids:idl.slice(),rng:mkRng(seed),T:(clampInt(mode,0,1,0)===0?0:90),count:3,k:0,eid:0,evs:[],pel:[],P:[],G:[],dots:freshDots(),over:false,emitAcc:0,dotsLeft:DOTCOUNT,stalled:false,fr:null,fcd:30,lastEff:null,stage:1,multi:idl.filter(Boolean).length>=2};
+  const s={sp,mode:clampInt(mode,0,1,0),pv:SPEEDS[sp][0],gv:SPEEDS[sp][1],ids:idl.slice(),rng:mkRng(seed),T:(clampInt(mode,0,1,0)===0?0:90),count:3,k:0,eid:0,evs:[],pel:[],P:[],G:[],dots:freshDots(),over:false,emitAcc:0,dotsLeft:DOTCOUNT,stalled:false,fr:null,fcd:30,lastEff:null,stage:1,maze:curMaze,multi:idl.filter(Boolean).length>=2};
   for(let i=0;i<4;i++){const act=!!idl[i];s.P.push({act,left:!act,x:STARTS[i][0],y:STARTS[i][1],d:0,want:0,sc:0,power:0,rest:0,inv:0,lives:3,dying:0,out:false,bn:0,outT:null})}
   for(let i=0;i<2;i++)s.G.push({x:GSTART[i][0],y:GSTART[i][1],d:0,m:0,fr:0,h:3+i*3,off:false});
   s.G.push({x:9,y:9,d:0,m:0,fr:0,h:0,off:true});
@@ -396,6 +388,16 @@ function getInput(i){
   if(i===mySlot)return myD;
   const v=peerInput.get(sim.ids[i]);return v?v:0;
 }
+function nextStage(s){
+  s.stage++;s.maze=(s.maze+1)%4;setMaze(s.maze);
+  s.dots=freshDots();s.dotsLeft=DOTCOUNT;s.pel=[];s.fr=null;s.fcd=30;
+  for(let i=0;i<4;i++){
+    const p=s.P[i];if(!p.act||p.left||p.out||p.dying>0)continue;
+    p.x=STARTS[i][0];p.y=STARTS[i][1];p.d=0;p.want=0;p.bn=0;p.rest=0;p.inv=2;
+  }
+  s.G.forEach((g,i)=>{if(g.off)return;const q=i<2?GSTART[i]:[9,9];g.x=q[0];g.y=q[1];g.d=0;g.m=0;g.fr=0;g.h=2});
+  evPush(s,9,s.maze+1,0,0);
+}
 function liveP(p){return p.act&&!p.left&&!p.out&&!(p.dying>0)&&!(p.rest>0)}
 function simTick(s,dt){
   if(s.over)return;
@@ -450,9 +452,11 @@ function simTick(s,dt){
     const p=s.P[i];if(!liveP(p))continue;
     for(const g of s.G){
       if(g.m===1||g.off)continue;
-      if((p.x-g.x)**2+(p.y-g.y)**2<0.7){
-        if(g.fr>0){p.sc+=10;g.m=1;g.fr=0;evPush(s,2,p.x,p.y,i)}
-        else if(p.inv<=0){
+      const d2=(p.x-g.x)**2+(p.y-g.y)**2;
+      if(g.fr>0){
+        if(d2<(p.power>0?2.0:0.7)){p.sc+=10;g.m=1;g.fr=0;evPush(s,2,p.x,p.y,i)}
+      }else if(d2<0.7){
+        if(p.inv<=0){
           if(s.mode===0){p.lives--;if(p.lives<=0)p.outT=s.T;p.dying=1;p.d=0;p.want=0;p.power=0;evPush(s,5,p.x,p.y,i)}
           else{p.sc=Math.max(0,p.sc-5);caught(s,i)}
           break;
@@ -482,14 +486,12 @@ function simTick(s,dt){
     }
   }
   for(let k=s.pel.length-1;k>=0;k--){const e=s.pel[k];e.t-=dt;if(e.t<=0){s.dots[e.i]=1;s.pel.splice(k,1)}}
+  if(s.dotsLeft<=0)nextStage(s);
   if(s.mode===0){
-    if(s.dotsLeft<=0){
-      s.stage++;s.dots=freshDots();s.dotsLeft=DOTCOUNT;s.pel=[];evPush(s,9,Math.min(s.stage,W),0,0);
-    }
     const alive=s.P.filter(p=>p.act&&!p.left&&p.lives>0).length;
     const dy=s.P.some(p=>p.act&&p.dying>0);
     if(!dy&&alive<=(s.multi?1:0))finishGame(s);
-  }else if(s.dotsLeft<=0||s.T<=0){s.T=Math.max(0,s.T);finishGame(s)}
+  }else if(s.T<=0){s.T=Math.max(0,s.T);finishGame(s)}
 }
 function dotsToHex(d){let out='';for(let n=0;n<NT;n+=4){let v=0;for(let b=0;b<4;b++)if(n+b<NT&&d[n+b])v|=1<<b;out+=v.toString(16)}return out}
 function hexToDots(h){const d=new Uint8Array(NT);for(let i=0;i<NT;i++)d[i]=(parseInt(h[i>>2],16)>>(i&3))&1;return d}
@@ -499,7 +501,7 @@ function buildState(s){
   s.evs=s.evs.filter(e=>e.n<3);
   const st={k:++s.k,T:Math.round(s.T*10)/10,
     P:s.P.map(p=>[q16(p.x),q16(p.y),p.d,flagsOf(p),Math.min(9999,p.sc),p.lives]),
-    G:s.G.map(g=>[q16(g.x),q16(g.y),g.d,ghostCode(g)]),D:dotsToHex(s.dots),E,F:s.fr?s.fr.type+1:0};
+    G:s.G.map(g=>[q16(g.x),q16(g.y),g.d,ghostCode(g)]),D:dotsToHex(s.dots),E,F:s.fr?s.fr.type+1:0,L:s.maze};
   if(s.k%10===1){st.I=s.ids;st.S=s.sp;st.M=s.mode;st.Cl=slotCol}
   return st;
 }
@@ -628,7 +630,7 @@ async function mkFbRoom(code,create){
       else if(ls[id].t!==p.t)ls[id]={t:p.t,at:now};
       if(!me&&now-ls[id].at>6000)continue;
       if(typeof p.n!=='string')continue;
-      const pr={n:p.n,c:p.c,d:p.d,s:p.s,j:p.j,sp:p.sp,md:p.md,v:1};
+      const pr={n:p.n,c:p.c,d:p.d,s:p.s,j:p.j,sp:p.sp,md:p.md,stg:p.stg,v:1};
       const e={peer:id,by:null,isMe:me,sameTab:me,kind:'viewer',guest:false,presence:pr,updatedAt:Date.now()};
       list.push(e);sig[id]=JSON.stringify(pr);ent[id]=e;
     }
@@ -719,7 +721,7 @@ async function joinRoom(code,create){
   r=nr;online=true;roomCode=code;members=[];
   unsubs=[r.on('start',onStart),r.on('state',onStateMsg),r.on('end',onEnd),r.on('lobby',onLobbyMsg),r.onPeers(onPeers)];
   myJoin=Date.now();lastPd=0;
-  setPresence({n:myName,c:myColor,d:0,s:0,j:myJoin,v:1,sp:mySp,md:myMode});
+  setPresence({n:myName,c:myColor,d:0,s:0,j:myJoin,v:1,sp:mySp,md:myMode,stg:myStage});
   goLobby();
 }
 function leaveRoom(){
@@ -737,7 +739,7 @@ function computeMembers(){
       if(p.sameTab)me=p.peer;
       if(p.kind!=='viewer')continue;
       const pr=p.presence;if(!pr||pr.v!==1)continue;
-      out.push({peer:p.peer,me:!!p.sameTab,n:cleanName(pr.n),c:clampInt(pr.c,0,4,0),d:clampInt(pr.d,0,4,0),s:num(pr.s),sp:clampInt(pr.sp,0,2,0),md:clampInt(pr.md,0,1,0),j:num(pr.j)||9e15});
+      out.push({peer:p.peer,me:!!p.sameTab,n:cleanName(pr.n),c:clampInt(pr.c,0,4,0),d:clampInt(pr.d,0,4,0),s:num(pr.s),sp:clampInt(pr.sp,0,2,0),md:clampInt(pr.md,0,1,0),stg:clampInt(pr.stg,0,3,0),j:num(pr.j)||9e15});
     }
   }
   out.sort((a,b)=>(a.j-b.j)||(a.peer<b.peer?-1:a.peer>b.peer?1:0));
@@ -791,7 +793,7 @@ function doStart(){
     if(used[c]){c=[0,1,2,3,4].find(x=>!used[x])}
     used[c]=1;cols[k]=c;
   });
-  send('start',{seed:Math.floor(Math.random()*2147483647),t0:Date.now(),ids:slots,sp:mySp,mode:myMode,cols:cols});
+  send('start',{seed:Math.floor(Math.random()*2147483647),t0:Date.now(),ids:slots,sp:mySp,mode:myMode,cols:cols,st:myStage});
 }
 function validIds(a){
   if(!Array.isArray(a)||a.length!==4)return false;
@@ -806,7 +808,7 @@ function onStart(m){
   if(!(phase==='lobby'||phase==='result'))return;
   const d=m.data;if(!d||typeof d!=='object'||!validIds(d.ids))return;
   clearTimeout(startTimer);startTimer=0;
-  startGame(d.ids.slice(),clampInt(d.seed,0,2147483647,1),m.peer,{host:!!m.sameTab,sp:clampInt(d.sp,0,2,0),mode:clampInt(d.mode,0,1,0),cols:d.cols});
+  startGame(d.ids.slice(),clampInt(d.seed,0,2147483647,1),m.peer,{host:!!m.sameTab,sp:clampInt(d.sp,0,2,0),mode:clampInt(d.mode,0,1,0),cols:d.cols,st:clampInt(d.st,0,3,0)});
 }
 function parseState(d){
   if(!d||typeof d!=='object')return null;
@@ -831,7 +833,7 @@ function parseState(d){
   if(Array.isArray(d.E))for(const e of d.E.slice(0,8)){
     if(Array.isArray(e)&&e.length===5)E.push([clampInt(e[0],0,1e9,0),clampInt(e[1],0,10,0),clampInt(e[2],0,W,0),clampInt(e[3],0,H,0),clampInt(e[4],0,3,0)]);
   }
-  return {k,T,P,G,dots:hexToDots(d.D),E,I:d.I,S:clampInt(d.S,0,2,0),M:clampInt(d.M,0,1,0),Cl:d.Cl,F:clampInt(d.F,0,3,0)};
+  return {k,T,P,G,dots:hexToDots(d.D),E,I:d.I,S:clampInt(d.S,0,2,0),M:clampInt(d.M,0,1,0),Cl:d.Cl,F:clampInt(d.F,0,3,0),L:clampInt(d.L,0,3,0)};
 }
 function onStateMsg(m){
   if(isHost){
@@ -843,7 +845,7 @@ function onStateMsg(m){
   const now=performance.now();
   if(phase==='lobby'||phase==='result'){
     if(phase==='lobby'&&now-lobbySince>2500&&validIds(st.I)&&online){
-      startGame(st.I.slice(),1,m.peer,{late:true,sp:st.S,mode:st.M,cols:st.Cl});
+      startGame(st.I.slice(),1,m.peer,{late:true,sp:st.S,mode:st.M,cols:st.Cl,st:st.L});
     }else return;
   }
   if(phase!=='game'||solo)return;
@@ -854,7 +856,7 @@ function onStateMsg(m){
   }
   if(st.k<=lastK)return;
   lastK=st.k;lastStateAt=now;
-  const sn={t:now,k:st.k,T:st.T,P:st.P,G:st.G,dots:st.dots,fr:st.F};
+  const sn={t:now,k:st.k,T:st.T,P:st.P,G:st.G,dots:st.dots,fr:st.F,L:st.L};
   snaps.push(sn);if(snaps.length>6)snaps.shift();
   lastSnap=sn;
   for(const e of st.E){if(e[0]>seenEid){seenEid=e[0];playEvent(e[1],e[4],e[2],e[3])}}
@@ -877,6 +879,7 @@ function takeOver(){
   const sn=lastSnap;
   if(!sn){goLobby();return}
   const old=ids.indexOf(hostPeer);
+  setMaze(sn.L||0);
   sim=newSim(ids,(Date.now()&0x7fffffff),gameSp,gameMode);
   sim.count=0;sim.T=sn.T;sim.k=sn.k;sim.eid=seenEid;
   for(let i=0;i<4;i++){
@@ -942,6 +945,33 @@ function hostMember(){
   return pr.length?pr[0]:members[0];
 }
 function shownSp(){const h=hostMember();return (r&&h&&!h.me)?h.sp:mySp}
+function shownStage(){const h=hostMember();return (r&&h&&!h.me)?h.stg:myStage}
+function buildStage(){
+  const box=$('stage');box.textContent='';
+  for(let i=0;i<4;i++){
+    const b=document.createElement('button');b.textContent=String(i+1);b.dataset.sg=i;
+    b.addEventListener('click',()=>{
+      if(b.disabled)return;myStage=i;store.set('mdt_stage',String(i));audio();
+      if(online)setPresence({stg:i});refreshLobby();
+    });
+    box.appendChild(b);
+  }
+}
+function applyTheme(){
+  const el=document.documentElement;
+  if(myTheme===1)el.setAttribute('data-theme','light');
+  else if(myTheme===2)el.setAttribute('data-theme','dark');
+  else el.removeAttribute('data-theme');
+  readColors();
+}
+function buildTheme(){
+  const box=$('theme');box.textContent='';
+  THN.forEach((t,i)=>{
+    const b=document.createElement('button');b.textContent=t;b.dataset.th=i;
+    b.addEventListener('click',()=>{myTheme=i;store.set('mdt_theme',String(i));applyTheme();audio();refreshLobby()});
+    box.appendChild(b);
+  });
+}
 function shownMode(){const h=hostMember();return (r&&h&&!h.me)?h.md:myMode}
 function buildPadSz(){
   const box=$('padsz');box.textContent='';
@@ -977,6 +1007,8 @@ function refreshLobby(){
   {const h=hostMember(),lock=!!(r&&h&&!h.me),sp=shownSp();
    document.querySelectorAll('#spd button').forEach(b=>{b.disabled=lock;b.setAttribute('aria-pressed',String(Number(b.dataset.sp)===sp))});
    document.querySelectorAll('#padsz button').forEach(b=>{b.setAttribute('aria-pressed',String(Number(b.dataset.pz)===myPad))});
+   document.querySelectorAll('#stage button').forEach(b=>{b.disabled=lock;b.setAttribute('aria-pressed',String(Number(b.dataset.sg)===shownStage()))});
+   document.querySelectorAll('#theme button').forEach(b=>{b.setAttribute('aria-pressed',String(Number(b.dataset.th)===myTheme))});
    const md=shownMode();
    document.querySelectorAll('#mode button').forEach(b=>{b.disabled=lock;b.setAttribute('aria-pressed',String(Number(b.dataset.md)===md))});
    $('howBox').textContent=HOW[md];
@@ -1035,7 +1067,8 @@ $('btnStart').addEventListener('click',()=>{
   audio();if(!r)return;
   mySp=shownSp();store.set('mdt_sp',String(mySp));
   myMode=shownMode();store.set('mdt_mode',String(myMode));
-  setPresence({s:Date.now(),sp:mySp,md:myMode});
+  myStage=shownStage();store.set('mdt_stage',String(myStage));
+  setPresence({s:Date.now(),sp:mySp,md:myMode,stg:myStage});
 });
 $('btnAgain').addEventListener('click',()=>{
   audio();
@@ -1048,7 +1081,7 @@ $('btnBack').addEventListener('click',()=>{if(solo&&!online){goLobby()}else goLo
 function startSolo(){
   const idl=['me','','',''];
   myPeer='me';
-  startGame(idl,Math.floor(Math.random()*2147483647),'me',{host:true,solo:true,sp:mySp,mode:myMode,cols:[myColor,(myColor+1)%5,(myColor+2)%5,(myColor+3)%5]});
+  startGame(idl,Math.floor(Math.random()*2147483647),'me',{host:true,solo:true,sp:mySp,mode:myMode,st:myStage,cols:[myColor,(myColor+1)%5,(myColor+2)%5,(myColor+3)%5]});
 }
 function validCols(a){if(!Array.isArray(a)||a.length!==4)return false;for(const x of a)if(!Number.isInteger(x)||x<0||x>4)return false;return true}
 function startGame(idl,seed,hostP,opt){
@@ -1064,8 +1097,8 @@ function startGame(idl,seed,hostP,opt){
   const now=performance.now();lastStateAt=now;gameStartAt=now;
   cdEnd=opt.late?0:now+3000;lastCd=9;
   myD=0;lastPd=0;
-  gameSp=clampInt(opt.sp,0,2,0);gameMode=clampInt(opt.mode,0,1,0);
-  slotCol=validCols(opt.cols)?opt.cols.slice():[0,1,2,3];pops=[];dyAt=[0,0,0,0];
+  gameSp=clampInt(opt.sp,0,2,0);gameMode=clampInt(opt.mode,0,1,0);setMaze(clampInt(opt.st,0,3,0));
+  slotCol=validCols(opt.cols)?opt.cols.slice():[0,1,2,3];pops=[];dyAt=[0,0,0,0];bigS=[0,1,2,3].map(()=>({on:false,t0:0,off0:0,from:1,last:1}));
   if(isHost){sim=newSim(ids,seed,gameSp,gameMode);startSimLoop()}else{sim=null}
   buildChips();show('sGame');layout();setTimeout(layout,80);
 }
@@ -1213,7 +1246,7 @@ function buildMaze(){
   mazeCv=document.createElement('canvas');mazeCv.width=cv.width;mazeCv.height=cv.height;
   const m=mazeCv.getContext('2d');m.scale(dpr,dpr);
   m.fillStyle=C.maze;m.fillRect(0,0,W*T,H*T);
-  blobs(m,T,T*0.08,C.wall);blobs(m,T,T*0.3,C.wallIn);
+  blobs(m,T,T*0.08,C.walls[curMaze]);blobs(m,T,T*0.3,C.wallsIn[curMaze]);
   mazeDirty=false;
 }
 function starPath(c,x,y,r){
@@ -1222,6 +1255,21 @@ function starPath(c,x,y,r){
   c.closePath();
 }
 const ANG=[0,-Math.PI/2,0,Math.PI/2,Math.PI];
+function bigScale(i,pow,now){
+  const b=bigS[i];
+  if(pow){
+    if(!b.on){b.on=true;b.t0=now}
+    const el=(now-b.t0)/1000;let f=1;
+    if(el<0.4){const u=el/0.4-1;f=1+2.70158*u*u*u+1.70158*u*u}
+    else if(el>7)f=0.5+0.5*Math.cos((el-7)*14);
+    b.last=1+(BIG_SCALE-1)*f;
+  }else{
+    if(b.on){b.on=false;b.off0=now;b.from=b.last}
+    const u=(now-b.off0)/400;
+    b.last=u>=1?1:1+(b.from-1)*(1-u);
+  }
+  return b.last;
+}
 function drawChar(c,px,py,R,color,d,mouth,o){
   c.save();
   let alpha=1;
@@ -1230,7 +1278,7 @@ function drawChar(c,px,py,R,color,d,mouth,o){
   let col=color;
   if(o.power){col='hsl('+((o.t/3)%360)+',95%,62%)';c.shadowColor=col;c.shadowBlur=R*0.9}
   const ang=ANG[d];
-  c.fillStyle=col;c.strokeStyle=C.outline;c.lineWidth=Math.max(1.5,R*0.14);c.lineJoin='round';
+  c.fillStyle=col;c.strokeStyle=C.outline;c.lineWidth=Math.max(1.5,R*0.14)*(o.thick||1);c.lineJoin='round';
   c.beginPath();
   if(o.scared||d===0&&false){c.arc(px,py,R,0,Math.PI*2)}
   else{c.moveTo(px,py);c.arc(px,py,R,ang+mouth,ang+Math.PI*2-mouth);c.closePath()}
@@ -1306,7 +1354,7 @@ function drawFruit(c,px,py,R,type,t){
   c.restore();
 }
 function lerp(a,b,u){return Math.abs(b-a)>2?b:a+(b-a)*u}
-function snapView(a){return {T:a.T,P:a.P,G:a.G,dots:a.dots,fr:a.fr}}
+function snapView(a){return {T:a.T,P:a.P,G:a.G,dots:a.dots,fr:a.fr,L:a.L}}
 function clientView(now){
   const sn=snaps;if(!sn.length)return null;
   const rt=now-250;
@@ -1314,13 +1362,13 @@ function clientView(now){
   for(let i=0;i<sn.length-1;i++)if(sn[i].t<=rt&&rt<=sn[i+1].t){a=sn[i];b=sn[i+1];break}
   if(!b)return snapView(rt>sn[sn.length-1].t?sn[sn.length-1]:sn[0]);
   const u=(rt-a.t)/Math.max(1,b.t-a.t);
-  return {T:b.T,dots:b.dots,fr:b.fr,
+  return {T:b.T,dots:b.dots,fr:b.fr,L:b.L,
     P:b.P.map((p,i)=>({x:lerp(a.P[i].x,p.x,u),y:lerp(a.P[i].y,p.y,u),d:p.d,f:p.f,sc:p.sc,lv:p.lv})),
     G:b.G.map((g,i)=>({x:lerp(a.G[i].x,g.x,u),y:lerp(a.G[i].y,g.y,u),d:g.d,m:g.m}))};
 }
 function hostView(){
   const s=sim;
-  return {T:s.T,dots:s.dots,fr:s.fr?s.fr.type+1:0,
+  return {T:s.T,dots:s.dots,fr:s.fr?s.fr.type+1:0,L:s.maze,
     P:s.P.map(p=>({x:p.x,y:p.y,d:p.d,f:flagsOf(p),sc:p.sc,lv:p.lives})),
     G:s.G.map(g=>({x:g.x,y:g.y,d:g.d,m:ghostCode(g)}))};
 }
@@ -1353,6 +1401,8 @@ function renderGame(now){
   if(padDirty)drawPad();
   if(mazeDirty||!mazeCv)buildMaze();
   const v=(isHost&&sim)?hostView():clientView(now);
+  if(v&&v.L!==undefined&&v.L!==curMaze)setMaze(v.L);
+  if(mazeDirty)buildMaze();
   const T=tile;
   cx.setTransform(dpr,0,0,dpr,0,0);
   cx.drawImage(mazeCv,0,0,W*T,H*T);
@@ -1386,9 +1436,11 @@ function renderGame(now){
     drawGhost(cx,(g.x+0.5)*T,(g.y+0.5)*T,R,now,{d:g.d,eyes:g.m===1,blue:bl,surprised:g.m===0&&near(g.x,g.y)});
   }
   const order=[0,1,2,3].filter(i=>i!==mySlot);if(mySlot>=0)order.push(mySlot);
+  const bigList=[];
   for(const i of order){
     const p=v.P[i];if(!ids[i]||(p.f&8)||(p.f&32))continue;
     if(p.f&16){
+      bigS[i].on=false;bigS[i].last=1;
       if(!dyAt[i])dyAt[i]=now;
       const k=Math.max(0.02,1-(now-dyAt[i])/1000);
       drawChar(cx,(p.x+0.5)*T,(p.y+0.5)*T,R*k,C.p[slotCol[i]],1,Math.min(3.0,(1-k)*3.1),{t:now});
@@ -1397,8 +1449,17 @@ function renderGame(now){
     dyAt[i]=0;
     const moving=p.d!==0;
     const mouth=moving?0.05+0.42*(0.5+0.5*Math.sin(now/55+i)):0.4;
-    drawChar(cx,(p.x+0.5)*T,(p.y+0.5)*T,R,C.p[slotCol[i]],p.d||2,mouth,
-      {t:now,power:!!(p.f&1),rest:!!(p.f&2),inv:!!(p.f&4),scared:!(p.f&1)&&!(p.f&2)&&near(p.x,p.y,p),me:i===mySlot});
+    const sc=bigScale(i,!!(p.f&1),now);
+    const o={t:now,power:!!(p.f&1),rest:!!(p.f&2),inv:!!(p.f&4),scared:!(p.f&1)&&!(p.f&2)&&near(p.x,p.y,p),me:i===mySlot};
+    if(sc>1.02){bigList.push({p:p,i:i,sc:sc,mouth:mouth,o:o});continue}
+    drawChar(cx,(p.x+0.5)*T,(p.y+0.5)*T,R,C.p[slotCol[i]],p.d||2,mouth,o);
+  }
+  for(const b of bigList){
+    const px=(b.p.x+0.5)*T,py=(b.p.y+0.5)*T,col=C.p[slotCol[b.i]];
+    cx.save();cx.globalAlpha=0.22;cx.fillStyle=col;cx.beginPath();cx.arc(px,py,R*b.sc*1.3,0,Math.PI*2);cx.fill();
+    cx.globalAlpha=0.18;cx.beginPath();cx.arc(px,py,R*b.sc*1.6,0,Math.PI*2);cx.fill();cx.restore();
+    b.o.thick=1.6;
+    drawChar(cx,px,py,R*b.sc,col,b.p.d||2,b.mouth,b.o);
   }
   for(let k=pops.length-1;k>=0;k--){
     const o=pops[k],age=now-o.t0;
@@ -1419,6 +1480,7 @@ function renderGame(now){
       cx.strokeText(msg,W*T/2,T*13.2);cx.fillText(msg,W*T/2,T*13.2);cx.restore();
     }
   }
+  {const fa=(now-fadeAt)/800;if(fa<1){cx.save();cx.globalAlpha=1-fa;cx.fillStyle=C.maze;cx.fillRect(0,0,W*T,H*T);cx.restore()}}
   updateHud(v);
   // カウントダウン
   const cd=(isHost&&sim)?(sim.count>0?Math.ceil(sim.count):0):(cdEnd>now?Math.ceil((cdEnd-now)/1000):0);
@@ -1507,7 +1569,7 @@ function showResult(sc,l,al,tm){
   show('sResult');
 }
 
-buildColors();buildSpd();buildMode();buildPadSz();$('btnHow').addEventListener('click',()=>{$('howBox').hidden=!$('howBox').hidden;layout()});
+buildColors();buildSpd();buildMode();buildStage();buildTheme();buildPadSz();applyTheme();$('btnHow').addEventListener('click',()=>{$('howBox').hidden=!$('howBox').hidden;layout()});
 layout();refreshLobby();updMute();
 requestAnimationFrame(frame);
 initRoom();
