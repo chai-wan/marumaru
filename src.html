@@ -453,7 +453,7 @@ function simTick(s,dt){
     for(const g of s.G){
       if(g.m===1||g.off)continue;
       const d2=(p.x-g.x)**2+(p.y-g.y)**2;
-      if(g.fr>0){
+      if(g.fr>0||p.power>0){
         if(d2<(p.power>0?2.0:0.7)){p.sc+=10;g.m=1;g.fr=0;evPush(s,2,p.x,p.y,i)}
       }else if(d2<0.7){
         if(p.inv<=0){
